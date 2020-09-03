@@ -14,35 +14,28 @@ namespace FolderComparer
 
         private readonly String _path;
 
-        private LocalFolder(String path)
+       public LocalFolder(String path)
         {
             _path = path;
-        }
-
-        public static async Task<LocalFolder> Initialize(String path)
-        {
-            LocalFolder folder = new LocalFolder(path);
-            Task initFiles = Task.Run(() => folder.InitializeFiles());
-            Task initFolders = Task.Run(() => folder.InitializeSubFolders());
-            await Task.WhenAll(initFiles, initFolders);
-
-            return folder;
+            Task initFiles = Task.Run(InitializeFiles);
+            Task initFolders = Task.Run(InitializeSubFolders);
+            Task.WaitAll(initFiles, initFolders);
         }
 
         private void InitializeFiles()
         {
             String[] files = Directory.GetFiles(_path);
             _files = files
-                .AsParallel()
                 .Select(k => new LocalFile(k))
                 .ToArray();
         }
 
-        private async Task InitializeSubFolders()
+        private void InitializeSubFolders()
         {
             String[] directories = Directory.GetDirectories(_path);
-            IEnumerable<Task<LocalFolder>> initializeInnerFolders = directories.Select(Initialize);
-            _innerFolders = await Task.WhenAll(initializeInnerFolders);
+            _innerFolders = directories
+                .Select(k => new LocalFolder(k))
+                .ToArray();
         }
 
         public void GetFileNames()

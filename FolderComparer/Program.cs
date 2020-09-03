@@ -6,9 +6,9 @@ namespace FolderComparer
 {
     public class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
-            var folder = await LocalFolder.Initialize(@"D:\VSProjects");
+            var folder = new LocalFolder(@"D:\VSProjects");
             folder.GetFileNames();
         }
     }
