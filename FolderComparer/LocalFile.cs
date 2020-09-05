@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace FolderComparer
 {
@@ -13,11 +14,5 @@ namespace FolderComparer
         {
             FilePath = filePath;
         }
-
-        public Byte[] GetHashCode(HashAlgorithm hashAlgorithm) => 
-            FileHash ??= hashAlgorithm.ComputeHash(File.ReadAllBytes(FilePath));
-
-        public void ComputeHashCode(HashAlgorithm hashAlgorithm) => 
-            FileHash = hashAlgorithm.ComputeHash(File.ReadAllBytes(FilePath));
     }
 }

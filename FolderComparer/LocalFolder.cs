@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 namespace FolderComparer
 {
     public class LocalFolder
+    //TODO : хешить папки
     {
         private LocalFile[] _files;
         private LocalFolder[] _innerFolders;
-
+        public Byte[] FolderHash;
         private readonly String _path;
 
        public LocalFolder(String path)
         {
             _path = path;
-            Task initFiles = Task.Run(InitializeFiles);
-            Task initFolders = Task.Run(InitializeSubFolders);
-            Task.WaitAll(initFiles, initFolders);
+            InitializeFiles();
+            InitializeSubFolders();
         }
 
         private void InitializeFiles()
@@ -38,10 +38,16 @@ namespace FolderComparer
                 .ToArray();
         }
 
-        public void GetFileNames()
+        public String[] GetFileNames()
         {
-            _files.ToList().ForEach(k => Console.WriteLine(k.FilePath));
-            _innerFolders.ToList().ForEach(k => k.GetFileNames());
+            // TODO : убрать жесть
+            return _files
+                .Select(k => k.FilePath)
+                .Union(
+                    _innerFolders
+                        .Select(k => k.GetFileNames())
+                        .SelectMany(k => k))
+                .ToArray();
         }
     }
 }

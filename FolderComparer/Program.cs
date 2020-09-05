@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -8,8 +9,7 @@ namespace FolderComparer
     {
         static void Main(string[] args)
         {
-            var folder = new LocalFolder(@"D:\VSProjects");
-            folder.GetFileNames();
+            new FolderComparer().Compare(@"D:\VSProjects", "");
         }
     }
 }

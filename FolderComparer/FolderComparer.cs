@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,19 +9,25 @@ namespace FolderComparer
 {
     public class FolderComparer
     {
-        private LocalFolder _firstFolder;
-        private LocalFolder _secondFolder;
+        //TODO : Сравнивать просто по хешам и количеству файлов
+        public void Compare(String firstFolderPath, String secondFolderPath) 
+            => Compare(new LocalFolder(firstFolderPath), new LocalFolder(secondFolderPath));
 
-        public FolderComparer(String firstFolderPath, String secondFolderPath)
+        public void Compare(LocalFolder firstFolder, LocalFolder secondFolder)
         {
-            Task firstFolderInitialize = Task.Run(() => {_firstFolder = new LocalFolder(firstFolderPath);});
-            Task secondFolderInitialize = Task.Run(() => { _secondFolder = new LocalFolder(secondFolderPath); });
-            Task.WaitAll(firstFolderInitialize, secondFolderInitialize);
+            FileBlockPool pool = new FileBlockPool();
+            SingleThreadFileBlocksReader singleThreadFileBlocksReader = new SingleThreadFileBlocksReader(pool.Blocks);
+
+            FillFilesToReader(firstFolder.GetFileNames(), singleThreadFileBlocksReader);
+            FillFilesToReader(secondFolder.GetFileNames(), singleThreadFileBlocksReader);
         }
 
-        public void CompareFolders()
+        private void FillFilesToReader(String[] filePaths, SingleThreadFileBlocksReader reader)
         {
-            _secondFolder.
+            foreach (String filePath in filePaths)
+                Task.Run(() => reader.FilePaths.Add(filePath));
         }
+
+        private void InitializeComparing() { }
     }
 }
