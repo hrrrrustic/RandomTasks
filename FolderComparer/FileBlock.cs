@@ -8,11 +8,16 @@ namespace FolderComparer
     {
         private readonly Byte[] _block;
 
+        private readonly Guid _fileId;
+
+        private readonly Guid _folderId;
         public readonly Boolean IsLastBLock;
 
-        public FileBlock(Byte[] block)
+        public FileBlock(Byte[] block, Guid folderId, Guid fileId)
         {
             _block = block;
+            _folderId = folderId;
+            _fileId = fileId;
         }
 
         public void Dispose()

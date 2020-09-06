@@ -16,16 +16,16 @@ namespace FolderComparer
         public void Compare(LocalFolder firstFolder, LocalFolder secondFolder)
         {
             FileBlockPool pool = new FileBlockPool();
-            SingleThreadFileBlocksReader singleThreadFileBlocksReader = new SingleThreadFileBlocksReader(pool.Blocks);
+            SingleThreadFileBlocksReader singleThreadFileBlocksReader = SingleThreadFileBlocksReader.GetInstance();
 
-            FillFilesToReader(firstFolder.GetFileNames(), singleThreadFileBlocksReader);
-            FillFilesToReader(secondFolder.GetFileNames(), singleThreadFileBlocksReader);
+            FillFilesToReader(firstFolder.GetFiles(), singleThreadFileBlocksReader);
+            FillFilesToReader(secondFolder.GetFiles(), singleThreadFileBlocksReader);
         }
 
-        private void FillFilesToReader(String[] filePaths, SingleThreadFileBlocksReader reader)
+        private void FillFilesToReader(LocalFile[] files, SingleThreadFileBlocksReader reader)
         {
-            foreach (String filePath in filePaths)
-                Task.Run(() => reader.FilePaths.Add(filePath));
+            foreach (LocalFile file in files)
+                Task.Run(() => reader.QueuedFiles.Add(file));
         }
 
         private void InitializeComparing() { }

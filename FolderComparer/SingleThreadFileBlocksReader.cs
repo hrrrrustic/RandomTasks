@@ -18,39 +18,37 @@ namespace FolderComparer
         private Int32 _readingFlag = 0;
         public Boolean IsReading => _readingFlag == True;
 
-        public readonly BlockingCollection<String> FilePaths = new BlockingCollection<String>(new ConcurrentQueue<String>());
-        public readonly BlockingCollection<FileBlock> ReadedBlocks;
+        private static readonly Lazy<SingleThreadFileBlocksReader> Instance = new Lazy<SingleThreadFileBlocksReader>(() => new SingleThreadFileBlocksReader());
+        public static SingleThreadFileBlocksReader GetInstance() => Instance.Value;
+        public readonly BlockingCollection<LocalFile> QueuedFiles = new BlockingCollection<LocalFile>(new ConcurrentQueue<LocalFile>());
+        public readonly BlockingCollection<FileBlock> ReadedBlocks = new BlockingCollection<FileBlock>(new ConcurrentQueue<FileBlock>());
 
-        public SingleThreadFileBlocksReader(BlockingCollection<FileBlock> blockDestination)
-        {
-            ReadedBlocks = blockDestination;
-        }
-
+        private SingleThreadFileBlocksReader() { }
         public void StartReading()
         {
             if (Interlocked.CompareExchange(ref _readingFlag, True, False) == True)
                 throw new MultithreadAccessException("Multithread reading is not allowed");
 
-            foreach (String filePath in FilePaths) //TODO : while with resetEvent
+            foreach (LocalFile file in QueuedFiles) //TODO : while with resetEvent
             {
-                if (!File.Exists(filePath))
-                    throw new FileNotFoundException(filePath);
+                if (!File.Exists(file.FilePath))
+                    throw new FileNotFoundException(file.FilePath);
 
-                FileStream fileStream = File.OpenRead(filePath);
-                ReadBlocks(fileStream);
+                ReadBlocks(file);
             }
-
             _readingFlag = False;
         }
 
-        private void ReadBlocks(FileStream stream)
+        private void ReadBlocks(LocalFile file)
         {
-            Int64 length = stream.Length; 
+            FileStream fileStream = File.OpenRead(file.FilePath);
+
+            Int64 length = fileStream.Length; 
             Int32 bufferSize = length < 4096 ? (Int32)length : 4096;
 
-            while (ReadBlock(stream, bufferSize, out Byte[] readedBlock) > 0)
+            while (ReadBlock(fileStream, bufferSize, out Byte[] readedBlock) > 0)
             {
-                FileBlock block = new FileBlock(readedBlock);
+                FileBlock block = new FileBlock(readedBlock, file.FolderId, file.FolderId);
                 Task.Run(() => ReadedBlocks.Add(block));
             }
 
