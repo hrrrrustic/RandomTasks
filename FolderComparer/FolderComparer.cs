@@ -18,11 +18,11 @@ namespace FolderComparer
 
         public FolderCompareResult Compare(LocalFolder firstFolder, LocalFolder secondFolder)
         {
-            
-            FileBlocksHandler handler = new FileBlocksHandler();
+            SingleThreadFileBlocksReader singleThreadFileBlocksReader = SingleThreadFileBlocksReader.GetInstance();
+
+            FileBlocksHandler handler = new(singleThreadFileBlocksReader.ReadedBlocks);
             Task handleTask = Task.Run(() => handler.HandleBlocks());
 
-            SingleThreadFileBlocksReader singleThreadFileBlocksReader = SingleThreadFileBlocksReader.GetInstance();
             Task.Run(() => singleThreadFileBlocksReader.StartReading());
 
             var allFiles = firstFolder
@@ -43,8 +43,8 @@ namespace FolderComparer
             if(firstHashedFolder == secondHashedFolder)
                 return FolderCompareResult.IdenticalFoldersResult;
 
-            List<(String, String)> matches = new List<(String, String)>();
-            List<String> differences = new List<String>();
+            List<(String, String)> matches = new();
+            List<String> differences = new();
 
             firstHashedFolder
                 .HashedFiles

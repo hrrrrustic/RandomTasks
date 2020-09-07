@@ -14,11 +14,17 @@ namespace FolderComparer
 {
     public class FileBlocksHandler
     {
-        public readonly BlockingCollection<FileBlock> Blocks = SingleThreadFileBlocksReader.GetInstance().ReadedBlocks;
-        public readonly BlockingCollection<HashedFileBlock> HashedBlocks = new BlockingCollection<HashedFileBlock>(new ConcurrentQueue<HashedFileBlock>());
+        public readonly BlockingCollection<FileBlock> Blocks;
+        public readonly BlockingCollection<HashedFileBlock> HashedBlocks = new(new ConcurrentQueue<HashedFileBlock>());
+
+        public FileBlocksHandler(BlockingCollection<FileBlock> blocks)
+        {
+            Blocks = blocks;
+        }
+
         public void HandleBlocks()
         {
-            List<Task> hashTasks = new List<Task>();
+            List<Task> hashTasks = new();
             while (!Blocks.IsCompleted)
             {
                 FileBlock currentBlock;

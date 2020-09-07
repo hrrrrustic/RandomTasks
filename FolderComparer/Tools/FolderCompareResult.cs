@@ -34,7 +34,7 @@ namespace FolderComparer.Tools
             if (IsIdentical)
                 return "Folders are equals";
 
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             builder
                 .Append("Same files : ")
                 .AppendLine();

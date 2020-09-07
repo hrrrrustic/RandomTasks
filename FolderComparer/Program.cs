@@ -8,7 +8,7 @@ namespace FolderComparer
         public static void Main()
         { 
             FolderCompareResult res = new FolderComparer()
-                .Compare("D:\\VSProjects\\OpenSource\\runtime\\src\\coreclr\\src\\jit", "D:\\VSProjects\\OpenSource\\runtime\\src\\coreclr\\src\\jit");
+                .Compare("D:\\VSProjects\\OpenSource\\runtime\\src\\coreclr\\src", "D:\\VSProjects\\OpenSource\\runtime\\src\\coreclr\\src\\jit");
 
             Console.WriteLine(res);
         }

@@ -8,7 +8,7 @@ namespace FolderComparer.Files
 
         public LocalFile(String filePath, Guid folderId)
         {
-            FileInfo = new LocalFileInfo(filePath, folderId, Guid.NewGuid());
+            FileInfo = new(filePath, folderId, Guid.NewGuid());
         }
     }
 }

@@ -12,7 +12,5 @@ namespace FolderComparer.Files
             LocalFile = localFile;
             Hash = hash;
         }
-
-        public Guid FolderId => LocalFile.FolderId;
     }
 }

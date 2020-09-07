@@ -17,12 +17,12 @@ namespace FolderComparer
         private const Int32 False = 0;
         private Int32 _readingFlag = False;
         private const Int32 BlockSize = 1024;
-        private readonly List<Task> _blockPushingTasks = new List<Task>();
-        private static readonly Lazy<SingleThreadFileBlocksReader> Instance = new Lazy<SingleThreadFileBlocksReader>(() => new SingleThreadFileBlocksReader());
+        private readonly List<Task> _blockPushingTasks = new();
+        private static readonly Lazy<SingleThreadFileBlocksReader> Instance = new(() => new SingleThreadFileBlocksReader());
 
         public static SingleThreadFileBlocksReader GetInstance() => Instance.Value;
-        public readonly BlockingCollection<LocalFile> QueuedFiles = new BlockingCollection<LocalFile>(new ConcurrentQueue<LocalFile>());
-        public readonly BlockingCollection<FileBlock> ReadedBlocks = new BlockingCollection<FileBlock>(new ConcurrentQueue<FileBlock>());
+        public readonly BlockingCollection<LocalFile> QueuedFiles = new(new ConcurrentQueue<LocalFile>());
+        public readonly BlockingCollection<FileBlock> ReadedBlocks = new(new ConcurrentQueue<FileBlock>());
 
         private SingleThreadFileBlocksReader() { }
 
