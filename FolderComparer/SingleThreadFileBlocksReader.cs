@@ -4,19 +4,20 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Security.Authentication.ExtendedProtection;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Int32 = System.Int32;
 
 namespace FolderComparer
 {
-    public class SingleThreadFileBlocksReader
+    public sealed class SingleThreadFileBlocksReader : CriticalFinalizerObject, IDisposable
     {
         private const Int32 True = 1;
         private const Int32 False = 0;
-        private Int32 _readingFlag = 0;
-        public Boolean IsReading => _readingFlag == True;
+        private Int32 _readingFlag = False;
 
         private static readonly Lazy<SingleThreadFileBlocksReader> Instance = new Lazy<SingleThreadFileBlocksReader>(() => new SingleThreadFileBlocksReader());
         public static SingleThreadFileBlocksReader GetInstance() => Instance.Value;
@@ -29,26 +30,36 @@ namespace FolderComparer
             if (Interlocked.CompareExchange(ref _readingFlag, True, False) == True)
                 throw new MultithreadAccessException("Multithread reading is not allowed");
 
-            foreach (LocalFile file in QueuedFiles) //TODO : while with resetEvent
+            while (!QueuedFiles.IsCompleted)
             {
+                LocalFile file = QueuedFiles.Take();
+
                 if (!File.Exists(file.FilePath))
                     throw new FileNotFoundException(file.FilePath);
 
                 ReadBlocks(file);
             }
             _readingFlag = False;
+            Thread.Sleep(3000);
+            ReadedBlocks.CompleteAdding();
         }
 
         private void ReadBlocks(LocalFile file)
         {
+            const Int32 blockSize = 1024
+                ;
             FileStream fileStream = File.OpenRead(file.FilePath);
+            FileInfo info = new FileInfo(file.FilePath, file.FolderId, file.FileId, 4);
 
-            Int64 length = fileStream.Length; 
-            Int32 bufferSize = length < 4096 ? (Int32)length : 4096;
+            Int64 length = fileStream.Length;
+            Int32 bufferSize = length < blockSize ? (Int32)length : blockSize;
+
+            Int32 blockCount = 1;
 
             while (ReadBlock(fileStream, bufferSize, out Byte[] readedBlock) > 0)
             {
-                FileBlock block = new FileBlock(readedBlock, file.FolderId, file.FolderId);
+                FileBlock block = new FileBlock(readedBlock, file.FolderId, blockCount, info);
+                blockCount++;
                 Task.Run(() => ReadedBlocks.Add(block));
             }
 
@@ -61,10 +72,18 @@ namespace FolderComparer
             Byte[] buffer = ArrayPool<Byte>.Shared.Rent(bufferSize); // TODO : на маленьких файлах лучше просто аллоцировать
             Int32 readedCount = stream.Read(buffer, 0, bufferSize);
 
-            if(readedCount > 0)
+            if (readedCount > 0)
                 readedBlock = buffer;
 
             return readedCount;
         }
+
+        public void Dispose()
+        {
+            QueuedFiles?.Dispose();
+            ReadedBlocks?.Dispose();
+        }
+
+        ~SingleThreadFileBlocksReader() => Dispose();
     }
 }

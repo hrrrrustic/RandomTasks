@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Runtime.ConstrainedExecution;
+using System.Security.Cryptography;
 
 namespace FolderComparer
 {
@@ -8,16 +9,24 @@ namespace FolderComparer
     {
         private readonly Byte[] _block;
 
-        private readonly Guid _fileId;
-
-        private readonly Guid _folderId;
+        public readonly FileInfo _info;
+        public readonly Guid FileId;
+        public readonly Int32 BlockNumber;
         public readonly Boolean IsLastBLock;
 
-        public FileBlock(Byte[] block, Guid folderId, Guid fileId)
+        public FileBlock(Byte[] block, Guid fileId, Int32 blockNumber, FileInfo info)
         {
             _block = block;
-            _folderId = folderId;
-            _fileId = fileId;
+            FileId = fileId;
+            BlockNumber = blockNumber;
+            _info = info;
+        }
+
+        public HashedFileBlock HashBlock(HashAlgorithm hashAlgorithm)
+        {
+            Byte[] hash = hashAlgorithm.ComputeHash(_block);
+
+            return new HashedFileBlock(this, hash, BlockNumber);
         }
 
         public void Dispose()

@@ -15,21 +15,22 @@ namespace FolderComparer
         private LocalFolder[] _innerFolders;
         private readonly String _path;
 
-        private readonly Guid _folderId;
+        public readonly Guid FolderId;
 
        public LocalFolder(String path)
         {
             _path = path;
-            _folderId = Guid.NewGuid();
+            FolderId = Guid.NewGuid();
             InitializeFiles();
-            InitializeSubFolders();
+            //InitializeSubFolders();
+            _innerFolders = Array.Empty<LocalFolder>();
         }
 
         private void InitializeFiles()
         {
             String[] files = Directory.GetFiles(_path);
             _files = files
-                .Select(k => new LocalFile(k, _folderId))
+                .Select(k => new LocalFile(k, FolderId))
                 .ToArray();
         }
 
@@ -39,19 +40,6 @@ namespace FolderComparer
             _innerFolders = directories
                 .Select(k => new LocalFolder(k))
                 .ToArray();
-        }
-        //TODO : Айдишники и количество
-        public HashedLocalFolder HashFolder(HashAlgorithm hashAlgorithm)
-        {
-            SingleThreadFileBlocksReader reader = SingleThreadFileBlocksReader.GetInstance();
-            Task.Run(() => reader.StartReading());
-
-            foreach (LocalFile file in GetFiles())
-            {
-                reader.QueuedFiles.Add(file);
-            }
-
-            throw new NotImplementedException();
         }
         public String[] GetFileNames()
         {
