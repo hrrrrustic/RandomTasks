@@ -6,11 +6,14 @@ namespace FolderComparer
 {
     public class FolderCompareResult
     {
-        public readonly List<(String, String)> Matches;
-        public readonly List<String> Differences;
+        public readonly IReadOnlyList<(String, String)> Matches;
+        public readonly IReadOnlyList<String> Differences;
         public readonly Boolean IsIdentical;
 
-        public FolderCompareResult(List<(String, String)> matches, List<String> differences)
+        public FolderCompareResult(List<(String, String)> matches, List<String> differences) : this(matches.AsReadOnly(), differences.AsReadOnly())
+        { }
+
+        public FolderCompareResult(IReadOnlyList<(String, String)> matches, IReadOnlyList<String> differences)
         {
             Matches = matches;
             Differences = differences;

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
+using System.Runtime.InteropServices;
 using System.Security.Authentication.ExtendedProtection;
 using System.Security.Cryptography;
 using System.Threading;
@@ -13,7 +14,7 @@ using Int32 = System.Int32;
 
 namespace FolderComparer
 {
-    public sealed class SingleThreadFileBlocksReader : CriticalFinalizerObject, IDisposable
+    public sealed class SingleThreadFileBlocksReader : IDisposable
     {
         private const Int32 True = 1;
         private const Int32 False = 0;
@@ -44,23 +45,25 @@ namespace FolderComparer
                     break;
                 }
 
-                if (!File.Exists(file.FilePath))
-                    throw new FileNotFoundException(file.FilePath);
+                String filePath = file.FileInfo.FilePath;
+                if (!File.Exists(filePath))
+                    throw new FileNotFoundException(filePath);
 
                 ReadBlocks(file);
             }
 
             _readingFlag = False;
+
             Task.WaitAll(_blockPushingTasks.ToArray());
-            ReadedBlocks.CompleteAdding();
+            ReadedBlocks.CompleteAdding(); // TODO: из-за этого в целом флаг _readingFlag становится около бесполезным. Даже если чтение закончилось, после этого не получится начать чтение заново. Нужно сделать флаг статическим, сделать класс не синглтоном и сделать синхронизацию на ResetEvent'е
         }
 
         private void ReadBlocks(LocalFile file)
         {
-            const Int32 blockSize = 1024
-                ;
-            FileStream fileStream = File.OpenRead(file.FilePath);
-            FileInfo info = new FileInfo(file.FilePath, file.FolderId, file.FileId, 4);
+            const Int32 blockSize = 1024;
+
+            FileInfo info = file.FileInfo;
+            FileStream fileStream = File.OpenRead(info.FilePath);
 
             Int64 length = fileStream.Length;
             Int32 bufferSize = length < blockSize ? (Int32)length : blockSize;
@@ -69,7 +72,7 @@ namespace FolderComparer
 
             while (ReadBlock(fileStream, bufferSize, out Byte[] readedBlock) > 0)
             {
-                FileBlock block = new FileBlock(readedBlock, file.FolderId, blockCount, info);
+                FileBlock block = new FileBlock(readedBlock, blockCount, info);
                 blockCount++;
 
                 Task pushing = Task.Run(() => ReadedBlocks.Add(block));

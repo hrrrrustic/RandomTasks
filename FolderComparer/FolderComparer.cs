@@ -67,7 +67,7 @@ namespace FolderComparer
                 .ToList()
                 .ForEach(k =>
                 {
-                    var files = k.ToList();
+                    List<HashedLocalFile> files = k.ToList();
 
                     if (files.Count == 2)
                         matches.Add((files[0].File.FilePath, files[1].File.FilePath));
@@ -81,13 +81,13 @@ namespace FolderComparer
         public static HashedLocalFile MergeBlocksHash(List<HashedFileBlock> blocks)
         {
             FileInfo info = blocks[0].FileInfo;
-            Byte[] hash = blocks[0]._hash;
+            Byte[] hash = blocks[0].Hash;
 
             if(blocks.Count == 1)
                 return new HashedLocalFile(info, hash);
 
             foreach (HashedFileBlock block in blocks.Skip(1))
-                hash = SHA512.HashData(hash.Concat(block._hash).ToArray());
+                hash = SHA512.HashData(hash.Concat(block.Hash).ToArray());
 
             return new HashedLocalFile(info, hash);
         }

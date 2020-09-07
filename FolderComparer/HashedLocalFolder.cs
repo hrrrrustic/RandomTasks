@@ -14,6 +14,29 @@ namespace FolderComparer
             Hash = hash;
         }
 
+        #region ObjectOverride
+        public Boolean Equals(HashedLocalFolder other)
+        {
+            if (other is null)
+                return false;
+
+            return Hash.SequenceEqual(other.Hash);
+        }
+
+        public override Boolean Equals(Object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+
+            return obj is HashedLocalFolder hashedFolder && Equals(hashedFolder);
+        }
+
+        public override Int32 GetHashCode()
+        {
+            return HashCode.Combine(HashedFiles, Hash);
+        }
+        #endregion
+
         public static Boolean operator ==(HashedLocalFolder first, HashedLocalFolder second)
         {
             if (ReferenceEquals(first, second))

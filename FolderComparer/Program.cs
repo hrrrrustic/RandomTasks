@@ -10,8 +10,9 @@ namespace FolderComparer
     public class Program
     {
         public static void Main()
-        {
-            var res = new FolderComparer().Compare("D:\\VSProjects\\MyRandomProjects\\JustR\\JustR\\JustR.Core\\Extensions", "D:\\VSProjects\\MyRandomProjects\\JustR\\JustR\\JustR.Core");
+        { 
+            FolderCompareResult res = new FolderComparer()
+                .Compare("D:\\VSProjects\\OpenSource\\runtime\\src\\coreclr\\src\\jit", "D:\\VSProjects\\OpenSource\\runtime\\src\\coreclr\\src\\jit");
 
             Console.WriteLine(res);
         }

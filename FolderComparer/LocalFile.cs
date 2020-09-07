@@ -8,17 +8,11 @@ namespace FolderComparer
 {
     public class LocalFile
     {
-        public readonly String FilePath;
-
-        public readonly Guid FileId;
-
-        public readonly Guid FolderId;
+        public readonly FileInfo FileInfo;
 
         public LocalFile(String filePath, Guid folderId)
         {
-            FilePath = filePath;
-            FileId = Guid.NewGuid();
-            FolderId = folderId;
+            FileInfo = new FileInfo(filePath, folderId, Guid.NewGuid());
         }
     }
 }
