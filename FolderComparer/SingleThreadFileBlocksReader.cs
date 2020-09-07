@@ -24,6 +24,8 @@ namespace FolderComparer
         public readonly BlockingCollection<LocalFile> QueuedFiles = new BlockingCollection<LocalFile>(new ConcurrentQueue<LocalFile>());
         public readonly BlockingCollection<FileBlock> ReadedBlocks = new BlockingCollection<FileBlock>(new ConcurrentQueue<FileBlock>());
 
+        private readonly List<Task> _blockPushingTasks = new List<Task>();
+
         private SingleThreadFileBlocksReader() { }
         public void StartReading()
         {
@@ -32,15 +34,24 @@ namespace FolderComparer
 
             while (!QueuedFiles.IsCompleted)
             {
-                LocalFile file = QueuedFiles.Take();
+                LocalFile file;
+                try
+                {
+                    file = QueuedFiles.Take();
+                }
+                catch (InvalidOperationException)
+                {
+                    break;
+                }
 
                 if (!File.Exists(file.FilePath))
                     throw new FileNotFoundException(file.FilePath);
 
                 ReadBlocks(file);
             }
+
             _readingFlag = False;
-            Thread.Sleep(3000);
+            Task.WaitAll(_blockPushingTasks.ToArray());
             ReadedBlocks.CompleteAdding();
         }
 
@@ -60,7 +71,9 @@ namespace FolderComparer
             {
                 FileBlock block = new FileBlock(readedBlock, file.FolderId, blockCount, info);
                 blockCount++;
-                Task.Run(() => ReadedBlocks.Add(block));
+
+                Task pushing = Task.Run(() => ReadedBlocks.Add(block));
+                _blockPushingTasks.Add(pushing);
             }
 
         }

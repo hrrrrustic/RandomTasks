@@ -25,7 +25,7 @@ namespace FolderComparer
                 }
                 catch (InvalidOperationException)
                 {
-                    return;
+                    continue;
                 }
 
                 hashTasks.Add(Task.Run(() => HashBlock(currentBlock)));
