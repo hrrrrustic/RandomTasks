@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FolderComparer
+namespace FolderComparer.Files
 {
     public class FileInfo
     {

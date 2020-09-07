@@ -1,28 +1,22 @@
 ﻿using System;
 using System.Linq;
+using FolderComparer.Files;
 
-namespace FolderComparer
+namespace FolderComparer.Folders
 {
-    public class HashedFileBlock
+    public class HashedLocalFolder
     {
+        public readonly HashedLocalFile[] HashedFiles;
         public readonly Byte[] Hash;
-        public readonly Int32 BlockNumber;
-        public readonly FileInfo FileInfo;
 
-        private HashedFileBlock(Byte[] hash, FileInfo fileInfo, Int32 blockNumber)
+        public HashedLocalFolder(HashedLocalFile[] hashedFiles, Byte[] hash)
         {
+            HashedFiles = hashedFiles;
             Hash = hash;
-            FileInfo = fileInfo;
-            BlockNumber = blockNumber;
-        }
-
-        public static HashedFileBlock FromFileBlock(FileBlock block, Byte[] hash)
-        {
-            return new HashedFileBlock(hash, block.FileInfo, block.BlockNumber);
         }
 
         #region ObjectOverride
-        public Boolean Equals(HashedFileBlock other)
+        public Boolean Equals(HashedLocalFolder other)
         {
             if (other is null)
                 return false;
@@ -35,16 +29,16 @@ namespace FolderComparer
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
 
-            return obj is HashedFileBlock hashedBlock && Equals(hashedBlock);
+            return obj is HashedLocalFolder hashedFolder && Equals(hashedFolder);
         }
 
         public override Int32 GetHashCode()
         {
-            return HashCode.Combine(Hash, FileInfo);
+            return HashCode.Combine(HashedFiles, Hash);
         }
         #endregion
 
-        public static Boolean operator ==(HashedFileBlock first, HashedFileBlock second)
+        public static Boolean operator ==(HashedLocalFolder first, HashedLocalFolder second)
         {
             if (ReferenceEquals(first, second))
                 return true;
@@ -55,8 +49,7 @@ namespace FolderComparer
             return first.Hash.SequenceEqual(second.Hash);
         }
 
-
-        public static Boolean operator !=(HashedFileBlock first, HashedFileBlock second)
+        public static Boolean operator !=(HashedLocalFolder first, HashedLocalFolder second)
         {
             return !(first == second);
         }

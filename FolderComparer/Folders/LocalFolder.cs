@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using FolderComparer.Files;
 
-namespace FolderComparer
+namespace FolderComparer.Folders
 {
     public class LocalFolder
     {

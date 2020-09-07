@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FolderComparer
+namespace FolderComparer.Tools
 {
     public class MultithreadAccessException : Exception
     {

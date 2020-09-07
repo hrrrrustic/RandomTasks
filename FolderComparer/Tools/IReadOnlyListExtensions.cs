@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace FolderComparer
+namespace FolderComparer.Tools
 {
-    public static class IReadOnlyExtensions
+    public static class IReadOnlyListExtensions
     {
         public static void ForEach<T>(this IReadOnlyList<T> list, Action<T> action)
         {

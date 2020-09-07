@@ -10,6 +10,10 @@ using System.Security.Authentication.ExtendedProtection;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using FolderComparer.Blocks;
+using FolderComparer.Files;
+using FolderComparer.Tools;
+using FileInfo = FolderComparer.Files.FileInfo;
 using Int32 = System.Int32;
 
 namespace FolderComparer

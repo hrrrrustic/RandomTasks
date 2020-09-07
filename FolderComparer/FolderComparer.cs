@@ -9,6 +9,10 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using FolderComparer.Blocks;
+using FolderComparer.Files;
+using FolderComparer.Folders;
+using FolderComparer.Tools;
 
 namespace FolderComparer
 {
