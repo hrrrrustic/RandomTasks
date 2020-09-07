@@ -11,10 +11,6 @@ using FolderComparer.Tools;
 
 namespace FolderComparer
 {
-    public static class HashExtensions
-    {
-        public static HashedLocalFolder ToHashedFolder(this IEnumerable<HashedLocalFile> files) => FolderComparer.MergeFilesHash(files.ToList());
-    }
     public class FolderComparer
     {
         public FolderCompareResult Compare(String firstFolderPath, String secondFolderPath) 
@@ -22,8 +18,9 @@ namespace FolderComparer
 
         public FolderCompareResult Compare(LocalFolder firstFolder, LocalFolder secondFolder)
         {
-            FileBlockPool pool = new FileBlockPool();
-            Task handleTask = Task.Run(() => pool.HandleBlocks());
+            
+            FileBlocksHandler handler = new FileBlocksHandler();
+            Task handleTask = Task.Run(() => handler.HandleBlocks());
 
             SingleThreadFileBlocksReader singleThreadFileBlocksReader = SingleThreadFileBlocksReader.GetInstance();
             Task.Run(() => singleThreadFileBlocksReader.StartReading());
@@ -36,32 +33,22 @@ namespace FolderComparer
             FillFilesToReader(allFiles, singleThreadFileBlocksReader);
 
             handleTask.Wait();
-
-            var folders = pool
-                .HashedBlocks
-                .ToList()
-                .GroupBy(k => k.LocalFileInfo.FolderId)
-                .ToDictionary(e => e.Key, x => x
-                    .GroupBy(y => y.LocalFileInfo.FileId)
-                    .ToDictionary(y => y.Key, j => j
-                        .OrderBy(f => f.BlockNumber)
-                        .ToList())
-                    .Select(f => MergeBlocksHash(f.Value))
-                    .OrderBy(f => Encoding.Default.GetString(f.Hash))
-                    .ToHashedFolder());
-
-            var folder1 = folders[firstFolder.FolderId];
-            var folder2 = folders[secondFolder.FolderId];
             
-            if(folder1 == folder2)
+            Dictionary<Guid, HashedLocalFolder> folders = handler.BuildFolders();
+           
+
+            HashedLocalFolder firstHashedFolder = folders[firstFolder.FolderId];
+            HashedLocalFolder secondHashedFolder = folders[secondFolder.FolderId];
+            
+            if(firstHashedFolder == secondHashedFolder)
                 return FolderCompareResult.IdenticalFoldersResult;
 
             List<(String, String)> matches = new List<(String, String)>();
             List<String> differences = new List<String>();
 
-            folder1
+            firstHashedFolder
                 .HashedFiles
-                .Union(folder2.HashedFiles)
+                .Union(secondHashedFolder.HashedFiles)
                 .GroupBy(k => k.Hash)
                 .ToList()
                 .ForEach(k =>
@@ -77,29 +64,7 @@ namespace FolderComparer
             return new FolderCompareResult(matches, differences);
         }
 
-        public static HashedLocalFile MergeBlocksHash(List<HashedFileBlock> blocks)
-        {
-            LocalFileInfo info = blocks[0].LocalFileInfo;
-            Byte[] hash = blocks[0].Hash;
-
-            if(blocks.Count == 1)
-                return new HashedLocalFile(info, hash);
-
-            foreach (HashedFileBlock block in blocks.Skip(1))
-                hash = SHA512.HashData(hash.Concat(block.Hash).ToArray());
-
-            return new HashedLocalFile(info, hash);
-        }
-
-        public static HashedLocalFolder MergeFilesHash(List<HashedLocalFile> files)
-        {
-            Byte[] hash = files[0].Hash;
-
-            foreach (HashedLocalFile file in files.Skip(1))
-                hash = SHA512.HashData(hash.Concat(file.Hash).ToArray());
-
-            return new HashedLocalFolder(files.ToArray(), hash);
-        }
+       
 
         private void FillFilesToReader(LocalFile[] files, SingleThreadFileBlocksReader reader)
         {
