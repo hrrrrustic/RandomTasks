@@ -4,15 +4,15 @@ namespace FolderComparer.Files
 {
     public class HashedLocalFile
     {
-        public readonly FileInfo File;
+        public readonly LocalFileInfo LocalFile;
         public readonly Byte[] Hash;
 
-        public HashedLocalFile(FileInfo file, Byte[] hash)
+        public HashedLocalFile(LocalFileInfo localFile, Byte[] hash)
         {
-            File = file;
+            LocalFile = localFile;
             Hash = hash;
         }
 
-        public Guid FolderId => File.FolderId;
+        public Guid FolderId => LocalFile.FolderId;
     }
 }

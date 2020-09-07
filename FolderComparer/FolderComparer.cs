@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Net.Http.Headers;
-using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using FolderComparer.Blocks;
 using FolderComparer.Files;
@@ -45,9 +40,9 @@ namespace FolderComparer
             var folders = pool
                 .HashedBlocks
                 .ToList()
-                .GroupBy(k => k.FileInfo.FolderId)
+                .GroupBy(k => k.LocalFileInfo.FolderId)
                 .ToDictionary(e => e.Key, x => x
-                    .GroupBy(y => y.FileInfo.FileId)
+                    .GroupBy(y => y.LocalFileInfo.FileId)
                     .ToDictionary(y => y.Key, j => j
                         .OrderBy(f => f.BlockNumber)
                         .ToList())
@@ -74,9 +69,9 @@ namespace FolderComparer
                     List<HashedLocalFile> files = k.ToList();
 
                     if (files.Count == 2)
-                        matches.Add((files[0].File.FilePath, files[1].File.FilePath));
+                        matches.Add((files[0].LocalFile.FilePath, files[1].LocalFile.FilePath));
                     else
-                        differences.Add(files[0].File.FilePath);
+                        differences.Add(files[0].LocalFile.FilePath);
                 });
 
             return new FolderCompareResult(matches, differences);
@@ -84,7 +79,7 @@ namespace FolderComparer
 
         public static HashedLocalFile MergeBlocksHash(List<HashedFileBlock> blocks)
         {
-            FileInfo info = blocks[0].FileInfo;
+            LocalFileInfo info = blocks[0].LocalFileInfo;
             Byte[] hash = blocks[0].Hash;
 
             if(blocks.Count == 1)

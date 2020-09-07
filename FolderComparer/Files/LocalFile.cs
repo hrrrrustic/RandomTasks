@@ -4,11 +4,11 @@ namespace FolderComparer.Files
 {
     public class LocalFile
     {
-        public readonly FileInfo FileInfo;
+        public readonly LocalFileInfo FileInfo;
 
         public LocalFile(String filePath, Guid folderId)
         {
-            FileInfo = new FileInfo(filePath, folderId, Guid.NewGuid());
+            FileInfo = new LocalFileInfo(filePath, folderId, Guid.NewGuid());
         }
     }
 }

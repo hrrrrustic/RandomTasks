@@ -8,18 +8,18 @@ namespace FolderComparer.Blocks
     {
         public readonly Byte[] Hash;
         public readonly Int32 BlockNumber;
-        public readonly FileInfo FileInfo;
+        public readonly LocalFileInfo LocalFileInfo;
 
-        private HashedFileBlock(Byte[] hash, FileInfo fileInfo, Int32 blockNumber)
+        private HashedFileBlock(Byte[] hash, LocalFileInfo localFileInfo, Int32 blockNumber)
         {
             Hash = hash;
-            FileInfo = fileInfo;
+            LocalFileInfo = localFileInfo;
             BlockNumber = blockNumber;
         }
 
         public static HashedFileBlock FromFileBlock(FileBlock block, Byte[] hash)
         {
-            return new HashedFileBlock(hash, block.FileInfo, block.BlockNumber);
+            return new HashedFileBlock(hash, block.LocalFileInfo, block.BlockNumber);
         }
 
         #region ObjectOverride
@@ -41,7 +41,7 @@ namespace FolderComparer.Blocks
 
         public override Int32 GetHashCode()
         {
-            return HashCode.Combine(Hash, FileInfo);
+            return HashCode.Combine(Hash, LocalFileInfo);
         }
         #endregion
 

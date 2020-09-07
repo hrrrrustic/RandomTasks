@@ -8,14 +8,14 @@ namespace FolderComparer.Blocks
     public sealed class FileBlock : IDisposable
     {
         private readonly Byte[] _block;
-        public readonly FileInfo FileInfo;
+        public readonly LocalFileInfo LocalFileInfo;
         public readonly Int32 BlockNumber;
 
-        public FileBlock(Byte[] block, Int32 blockNumber, FileInfo fileInfo)
+        public FileBlock(Byte[] block, Int32 blockNumber, LocalFileInfo localFileInfo)
         {
             _block = block;
             BlockNumber = blockNumber;
-            FileInfo = fileInfo;
+            LocalFileInfo = localFileInfo;
         }
 
         public HashedFileBlock HashBlock(HashAlgorithm hashAlgorithm)

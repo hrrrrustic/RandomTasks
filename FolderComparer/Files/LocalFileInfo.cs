@@ -2,13 +2,13 @@
 
 namespace FolderComparer.Files
 {
-    public class FileInfo
+    public class LocalFileInfo
     {
         public readonly String FilePath;
         public readonly Guid FolderId;
         public readonly Guid FileId;
 
-        public FileInfo(String filePath, Guid folderId, Guid fileId)
+        public LocalFileInfo(String filePath, Guid folderId, Guid fileId)
         {
             FilePath = filePath;
             FolderId = folderId;

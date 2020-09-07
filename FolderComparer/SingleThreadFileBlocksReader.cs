@@ -3,18 +3,11 @@ using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.ConstrainedExecution;
-using System.Runtime.InteropServices;
-using System.Security.Authentication.ExtendedProtection;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using FolderComparer.Blocks;
 using FolderComparer.Files;
 using FolderComparer.Tools;
-using FileInfo = FolderComparer.Files.FileInfo;
-using Int32 = System.Int32;
 
 namespace FolderComparer
 {
@@ -66,7 +59,7 @@ namespace FolderComparer
         {
             const Int32 blockSize = 1024;
 
-            FileInfo info = file.FileInfo;
+            LocalFileInfo info = file.FileInfo;
             FileStream fileStream = File.OpenRead(info.FilePath);
 
             Int64 length = fileStream.Length;
