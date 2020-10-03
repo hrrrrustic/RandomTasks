@@ -13,47 +13,55 @@ namespace FolderComparer
 {
     public sealed class SingleThreadFileBlocksReader
     {
-        private const Int32 True = 1;
-        private const Int32 False = 0;
-        private Int32 _readingFlag = False;
         private const Int32 BlockSize = 1024;
         private readonly List<Task> _blockPushingTasks = new();
-        private static readonly Lazy<SingleThreadFileBlocksReader> Instance = new(() => new SingleThreadFileBlocksReader());
-
-        public static SingleThreadFileBlocksReader GetInstance() => Instance.Value;
-        public readonly BlockingCollection<LocalFile> QueuedFiles = new(new ConcurrentQueue<LocalFile>());
+        private static readonly AutoResetEvent _resetEvent = new(true);
         public readonly BlockingCollection<FileBlock> ReadedBlocks = new(new ConcurrentQueue<FileBlock>());
+        public readonly IReadOnlyCollection<LocalFile> QueuedFiles;
+        public ReadingState Status { get; private set; } = ReadingState.NotStarted;
 
-        private SingleThreadFileBlocksReader() { }
+        public SingleThreadFileBlocksReader(IReadOnlyCollection<LocalFile> queuedFiles)
+        {
+            QueuedFiles = queuedFiles;
+        }
+
+        public Boolean IsSuccessfullyFinished => Status == ReadingState.Finished;
+        
 
         public void StartReading()
         {
-            if (Interlocked.CompareExchange(ref _readingFlag, True, False) == True)
-                throw new MultithreadAccessException("Multithread reading is not allowed");
-
-            while (!QueuedFiles.IsCompleted)
+            try
             {
-                LocalFile file;
-                try
+                InternalStartReading();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString()); // Наверно тут что-то более интеллектуальное должно быть
+            }
+        }
+
+        private void InternalStartReading()
+        {
+            _resetEvent.WaitOne();
+            Status = ReadingState.Reading;
+
+            foreach (LocalFile queuedFile in QueuedFiles)
+            {
+                if (!queuedFile.IsExist)
                 {
-                    file = QueuedFiles.Take();
-                }
-                catch (InvalidOperationException)
-                {
-                    break;
+                    ReadedBlocks.CompleteAdding();
+                    Status = ReadingState.Interrupted;
+                    _resetEvent.Set();
+                    throw new FileNotFoundException(queuedFile.FileInfo.FilePath);
                 }
 
-                String filePath = file.FileInfo.FilePath;
-                if (!File.Exists(filePath))
-                    throw new FileNotFoundException(filePath);
-
-                ReadBlocks(file);
+                ReadBlocks(queuedFile);
             }
 
-            _readingFlag = False;
-
             Task.WaitAll(_blockPushingTasks.ToArray());
-            ReadedBlocks.CompleteAdding(); // TODO: из-за этого в целом флаг _readingFlag становится около бесполезным. Даже если чтение закончилось, после этого не получится начать чтение заново. Нужно сделать флаг статическим, сделать класс не синглтоном и сделать синхронизацию на ResetEvent'е
+            ReadedBlocks.CompleteAdding();
+            Status = ReadingState.Finished;
+            _resetEvent.Set();
         }
 
         private void ReadBlocks(LocalFile file)

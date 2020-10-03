@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using FolderComparer.Blocks;
 using FolderComparer.Files;
 using FolderComparer.Folders;
 using FolderComparer.Tools;
+using ThreadState = System.Diagnostics.ThreadState;
 
 namespace FolderComparer
 {
@@ -18,22 +21,36 @@ namespace FolderComparer
 
         public FolderCompareResult Compare(LocalFolder firstFolder, LocalFolder secondFolder)
         {
-            SingleThreadFileBlocksReader singleThreadFileBlocksReader = SingleThreadFileBlocksReader.GetInstance();
-
-            FileBlocksHandler handler = new(singleThreadFileBlocksReader.ReadedBlocks);
-            Task handleTask = Task.Run(() => handler.HandleBlocks());
-
-            Task.Run(() => singleThreadFileBlocksReader.StartReading());
+            if (firstFolder.IsEmpty && secondFolder.IsEmpty)
+                return FolderCompareResult.IdenticalFoldersResult;
 
             var allFiles = firstFolder
                 .GetFiles()
                 .Concat(secondFolder.GetFiles())
                 .ToArray();
 
-            FillFilesToReader(allFiles, singleThreadFileBlocksReader);
+            SingleThreadFileBlocksReader singleThreadFileBlocksReader = new(allFiles);
 
-            handleTask.Wait();
-            
+            Thread readThread = new(singleThreadFileBlocksReader.StartReading);
+            readThread.Start();
+
+            FileBlocksHandler handler = new(singleThreadFileBlocksReader.ReadedBlocks);
+
+            CancellationTokenSource cancellationSource = new();
+
+            Thread handleThread = new Thread(() => handler.HandleBlocks(cancellationSource.Token));
+            handleThread.Start();
+            readThread.Join();
+
+            if (!singleThreadFileBlocksReader.IsSuccessfullyFinished)
+            {
+                cancellationSource.Cancel();
+                throw new CompareFolderException("One of folder was changed");
+            }
+
+            handleThread.Join();
+
+
             Dictionary<Guid, HashedLocalFolder> folders = handler.BuildFolders();
            
 
@@ -62,16 +79,6 @@ namespace FolderComparer
                 });
 
             return new FolderCompareResult(matches, differences);
-        }
-
-       
-
-        private void FillFilesToReader(LocalFile[] files, SingleThreadFileBlocksReader reader)
-        {
-            foreach (LocalFile file in files)
-                reader.QueuedFiles.Add(file);
-
-            reader.QueuedFiles.CompleteAdding();
         }
     }
 }

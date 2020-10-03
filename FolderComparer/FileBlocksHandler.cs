@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using FolderComparer.Blocks;
 using FolderComparer.Files;
@@ -15,22 +16,35 @@ namespace FolderComparer
     public class FileBlocksHandler
     {
         public readonly BlockingCollection<FileBlock> Blocks;
-        public readonly BlockingCollection<HashedFileBlock> HashedBlocks = new(new ConcurrentQueue<HashedFileBlock>());
+        private readonly BlockingCollection<HashedFileBlock> HashedBlocks = new(new ConcurrentQueue<HashedFileBlock>());
 
         public FileBlocksHandler(BlockingCollection<FileBlock> blocks)
         {
             Blocks = blocks;
         }
 
-        public void HandleBlocks()
+        public void HandleBlocks(CancellationToken cancellation)
+        {
+            try
+            {
+                InternalHandleBlocks(cancellation);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+        private void InternalHandleBlocks(CancellationToken cancellation)
         {
             List<Task> hashTasks = new();
             while (!Blocks.IsCompleted)
             {
+                cancellation.ThrowIfCancellationRequested();
                 FileBlock currentBlock;
                 try
                 {
-                    currentBlock = Blocks.Take();
+                    currentBlock = Blocks.Take(cancellation);
                 }
                 catch (InvalidOperationException)
                 {
@@ -42,7 +56,6 @@ namespace FolderComparer
 
             Task.WaitAll(hashTasks.ToArray());
         }
-
         private void HashBlock(FileBlock block)
         {
             HashedFileBlock hashedBlock = block.HashBlock(SHA512.Create());

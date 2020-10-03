@@ -11,9 +11,11 @@ namespace FolderComparer.Folders
         public readonly LocalFolder[] InnerFolders;
         public readonly String Path;
         public readonly Guid FolderId;
-
+        public Boolean IsEmpty => InnerFolders.Length == 0 && Files.Length == 0;
         public LocalFolder(String path)
         {
+            if (!Directory.Exists(path))
+                throw new DirectoryNotFoundException($"Directory {path} doesn't exist");
             Path = path;
             FolderId = Guid.NewGuid();
             Files = InitializeFiles();

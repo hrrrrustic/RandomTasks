@@ -6,11 +6,21 @@ namespace FolderComparer
     public class Program
     {
         public static void Main()
-        { 
-            FolderCompareResult res = new FolderComparer()
-                .Compare("D:\\VSProjects\\OpenSource\\runtime\\src\\coreclr\\src", "D:\\VSProjects\\OpenSource\\runtime\\src\\coreclr\\src\\jit");
+        {
+            String firstPath = Console.ReadLine();
+            String secondPath = Console.ReadLine();
 
-            Console.WriteLine(res);
+            try
+            {
+                FolderCompareResult res = new FolderComparer()
+                    .Compare(firstPath, secondPath);
+
+                Console.WriteLine(res);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
     }
 }
