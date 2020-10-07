@@ -11,9 +11,7 @@ namespace FolderComparer.Tools
                 throw new ArgumentNullException(nameof(action));
 
             foreach (T item in list)
-            {
                 action.Invoke(item);
-            }
         }
-}
+    }
 }

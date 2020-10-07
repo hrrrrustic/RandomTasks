@@ -27,7 +27,6 @@ namespace FolderComparer
 
         public Boolean IsSuccessfullyFinished => Status == ReadingState.Finished;
         
-
         public void StartReading()
         {
             try
@@ -57,7 +56,6 @@ namespace FolderComparer
 
                 ReadBlocks(queuedFile);
             }
-
             Task.WaitAll(_blockPushingTasks.ToArray());
             ReadedBlocks.CompleteAdding();
             Status = ReadingState.Finished;
@@ -82,14 +80,13 @@ namespace FolderComparer
                 Task pushing = Task.Run(() => ReadedBlocks.Add(block));
                 _blockPushingTasks.Add(pushing);
             }
-
         }
 
         private Int32 ReadBlock(Stream stream, Int32 bufferSize, out Byte[] readedBlock)
         {
             readedBlock = Array.Empty<Byte>(); 
 
-            Byte[] buffer = ArrayPool<Byte>.Shared.Rent(bufferSize); // TODO : на маленьких файлах лучше просто аллоцировать
+            Byte[] buffer = GetBuffer(bufferSize);
             Int32 readedCount = stream.Read(buffer, 0, bufferSize);
 
             if (readedCount > 0)
@@ -97,5 +94,13 @@ namespace FolderComparer
 
             return readedCount;
         }
+        
+        private Byte[] GetBuffer(Int32 size)
+        {
+            if (size < 1024)
+                return new Byte[size];
+
+            return ArrayPool<Byte>.Shared.Rent(size);
+        }   
     }
 }

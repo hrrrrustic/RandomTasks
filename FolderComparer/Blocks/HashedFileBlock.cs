@@ -10,17 +10,10 @@ namespace FolderComparer.Blocks
         public readonly Int32 BlockNumber;
         public readonly LocalFileInfo LocalFileInfo;
 
-        private HashedFileBlock(Byte[] hash, LocalFileInfo localFileInfo, Int32 blockNumber)
-        {
-            Hash = hash;
-            LocalFileInfo = localFileInfo;
-            BlockNumber = blockNumber;
-        }
-
-        public static HashedFileBlock FromFileBlock(FileBlock block, Byte[] hash)
-        {
-            return new HashedFileBlock(hash, block.LocalFileInfo, block.BlockNumber);
-        }
+        private HashedFileBlock(Byte[] hash, LocalFileInfo localFileInfo, Int32 blockNumber) 
+            => (Hash, LocalFileInfo, BlockNumber) = (hash, localFileInfo, blockNumber);
+        public static HashedFileBlock FromFileBlock(FileBlock block, Byte[] hash) 
+            => new HashedFileBlock(hash, block.LocalFileInfo, block.BlockNumber);
 
         #region ObjectOverride
         public Boolean Equals(HashedFileBlock other)
@@ -56,10 +49,6 @@ namespace FolderComparer.Blocks
             return first.Hash.SequenceEqual(second.Hash);
         }
 
-
-        public static Boolean operator !=(HashedFileBlock first, HashedFileBlock second)
-        {
-            return !(first == second);
-        }
+        public static Boolean operator !=(HashedFileBlock first, HashedFileBlock second) => !(first == second);
     }
 }

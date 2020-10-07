@@ -11,12 +11,7 @@ namespace FolderComparer.Blocks
         public readonly LocalFileInfo LocalFileInfo;
         public readonly Int32 BlockNumber;
 
-        public FileBlock(Byte[] block, Int32 blockNumber, LocalFileInfo localFileInfo)
-        {
-            _block = block;
-            BlockNumber = blockNumber;
-            LocalFileInfo = localFileInfo;
-        }
+        public FileBlock(Byte[] block, Int32 blockNumber, LocalFileInfo localFileInfo) => (_block, BlockNumber, LocalFileInfo) = (block, blockNumber, localFileInfo);
 
         public HashedFileBlock HashBlock(HashAlgorithm hashAlgorithm)
         {

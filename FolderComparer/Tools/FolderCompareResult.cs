@@ -10,22 +10,10 @@ namespace FolderComparer.Tools
         public readonly IReadOnlyList<String> Differences;
         public readonly Boolean IsIdentical;
 
-        public FolderCompareResult(List<(String, String)> matches, List<String> differences) : this(matches.AsReadOnly(), differences.AsReadOnly())
-        { }
+        public FolderCompareResult(IReadOnlyList<(String, String)> matches, IReadOnlyList<String> differences) 
+            => (Matches, Differences, IsIdentical) = (matches, differences, differences.Count == 0);
 
-        public FolderCompareResult(IReadOnlyList<(String, String)> matches, IReadOnlyList<String> differences)
-        {
-            Matches = matches;
-            Differences = differences;
-            IsIdentical = differences.Count == 0;
-        }
-
-        private FolderCompareResult()
-        {
-            Matches = new List<(String, String)>(0);
-            Differences = new List<String>(0);
-            IsIdentical = true;
-        }
+        private FolderCompareResult() => (Matches, Differences, IsIdentical) = (new List<(String, String)>(0), new List<String>(0), true);
 
         public static FolderCompareResult IdenticalFoldersResult => new FolderCompareResult();
 

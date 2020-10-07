@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using FolderComparer.Files;
 
 namespace FolderComparer.Folders
 {
-    public class HashedLocalFolder
+    public class HashedLocalFolder : IEnumerable<HashedLocalFile>
     {
         public readonly HashedLocalFile[] HashedFiles;
         public readonly Byte[] Hash;
@@ -32,12 +34,19 @@ namespace FolderComparer.Folders
             return obj is HashedLocalFolder hashedFolder && Equals(hashedFolder);
         }
 
+     
+
         public override Int32 GetHashCode()
         {
             return HashCode.Combine(HashedFiles, Hash);
         }
+
+
         #endregion
 
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public IEnumerator<HashedLocalFile> GetEnumerator() => HashedFiles.AsEnumerable().GetEnumerator();
         public static Boolean operator ==(HashedLocalFolder first, HashedLocalFolder second)
         {
             if (ReferenceEquals(first, second))
