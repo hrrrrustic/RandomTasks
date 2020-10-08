@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Buffers;
 using System.Security.Cryptography;
-using FolderComparer.Files;
 
 namespace FolderComparer.Blocks
 {

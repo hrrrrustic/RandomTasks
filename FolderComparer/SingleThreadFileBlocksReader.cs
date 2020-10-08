@@ -97,7 +97,7 @@ namespace FolderComparer
         
         private Byte[] GetBuffer(Int32 size)
         {
-            if (size < 1024)
+            if (size < 102400)
                 return new Byte[size];
 
             return ArrayPool<Byte>.Shared.Rent(size);

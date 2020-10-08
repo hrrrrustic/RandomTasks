@@ -16,6 +16,7 @@ namespace FolderComparer.Folders
         {
             if (!Directory.Exists(path))
                 throw new DirectoryNotFoundException($"Directory {path} doesn't exist");
+
             Path = path;
             FolderId = Guid.NewGuid();
             Files = InitializeFiles();
@@ -39,7 +40,7 @@ namespace FolderComparer.Folders
         {
             return Files
                 .Union(InnerFolders
-                    .SelectMany(k => k.Files))
+                    .SelectMany(k => k.GetFiles()))
                 .ToArray();
         }
     }

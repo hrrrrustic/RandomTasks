@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using FolderComparer.Files;
 
 namespace FolderComparer.Blocks
 {
