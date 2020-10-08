@@ -13,7 +13,7 @@ namespace FolderComparer
 {
     public sealed class SingleThreadFileBlocksReader
     {
-        private const Int32 BlockSize = 1024;
+        private const Int32 BlockSize = 1025;
         private readonly List<Task> _blockPushingTasks = new();
         private static readonly AutoResetEvent _resetEvent = new(true);
         public readonly BlockingCollection<FileBlock> ReadedBlocks = new(new ConcurrentQueue<FileBlock>());
@@ -72,7 +72,7 @@ namespace FolderComparer
 
             Int32 blockCount = 1;
 
-            while (ReadBlock(fileStream, bufferSize, out Byte[] readedBlock) > 0)
+            while (ReadBlock(fileStream, bufferSize, out Buffer readedBlock) > 0)
             {
                 FileBlock block = new FileBlock(readedBlock, blockCount, info);
                 blockCount++;
@@ -82,25 +82,30 @@ namespace FolderComparer
             }
         }
 
-        private Int32 ReadBlock(Stream stream, Int32 bufferSize, out Byte[] readedBlock)
+        private Int32 ReadBlock(Stream stream, Int32 bufferSize, out Buffer readedBlock)
         {
-            readedBlock = Array.Empty<Byte>(); 
+            readedBlock = null;
 
-            Byte[] buffer = GetBuffer(bufferSize);
-            Int32 readedCount = stream.Read(buffer, 0, bufferSize);
+            Buffer buffer = GetBuffer(bufferSize);
+            Int32 readedCount = stream.Read(buffer.ByteBuffer, 0, bufferSize);
 
             if (readedCount > 0)
                 readedBlock = buffer;
+            else
+                buffer.Dispose();
+
+            if (readedCount != bufferSize)
+                buffer.UpdateActualSize(readedCount);
 
             return readedCount;
         }
         
-        private Byte[] GetBuffer(Int32 size)
+        private Buffer GetBuffer(Int32 size)
         {
-            if (size < 102400)
-                return new Byte[size];
+            if (size < 1024)
+                return new Buffer(new Byte[size], size, false);
 
-            return ArrayPool<Byte>.Shared.Rent(size);
+            return new Buffer(ArrayPool<Byte>.Shared.Rent(size), size, true);
         }   
     }
 }

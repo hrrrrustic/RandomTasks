@@ -1,27 +1,29 @@
 ﻿using System;
 using System.Buffers;
+using System.Linq;
 using System.Security.Cryptography;
 
 namespace FolderComparer.Blocks
 {
     public sealed class FileBlock : IDisposable
     {
-        private readonly Byte[] _block;
+        private readonly Buffer _block;
         public readonly LocalFileInfo LocalFileInfo;
         public readonly Int32 BlockNumber;
+        private Boolean _disposed = false;
 
-        public FileBlock(Byte[] block, Int32 blockNumber, LocalFileInfo localFileInfo) => (_block, BlockNumber, LocalFileInfo) = (block, blockNumber, localFileInfo);
+        public FileBlock(Buffer block, Int32 blockNumber, LocalFileInfo localFileInfo) => (_block, BlockNumber, LocalFileInfo) = (block, blockNumber, localFileInfo);
 
         public HashedFileBlock HashBlock(HashAlgorithm hashAlgorithm)
         {
-            Byte[] hash = hashAlgorithm.ComputeHash(_block);
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(FileBlock));
 
-            return HashedFileBlock.FromFileBlock(this, hash); // TODO : Где-то здесь надо диспоузить
+            Byte[] hash = hashAlgorithm.ComputeHash(_block.ByteBuffer, 0, _block.ActualSize);
+
+            return HashedFileBlock.FromFileBlock(this, hash);
         }
 
-        public void Dispose()
-        {
-            ArrayPool<Byte>.Shared.Return(_block);
-        }
+        public void Dispose() => _block?.Dispose();
     }
 }

@@ -55,6 +55,7 @@ namespace FolderComparer
         private void HashBlock(FileBlock block)
         {
             HashedFileBlock hashedBlock = block.HashBlock(SHA512.Create());
+            block.Dispose();
             HashedBlocks.Add(hashedBlock);
         }
 
