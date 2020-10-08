@@ -96,13 +96,7 @@ namespace FolderComparer
             return readedCount;
         }
         
-        private Buffer GetBuffer(Int32 size)
-        {
-            if (size < 1024)
-                return new Buffer(new Byte[size], size, false);
-
-            return new Buffer(ArrayPool<Byte>.Shared.Rent(size), size, true);
-        }
+        private Buffer GetBuffer(Int32 size) => new Buffer(ArrayPool<Byte>.Shared.Rent(size), size, true);
 
         public void Dispose()
         {
