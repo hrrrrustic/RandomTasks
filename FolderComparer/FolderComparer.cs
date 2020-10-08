@@ -48,12 +48,12 @@ namespace FolderComparer
 
         private Dictionary<Guid, HashedLocalFolder> PrepareFolders(IReadOnlyCollection<LocalFile> files)
         {
-            SingleThreadFileBlocksReader singleThreadFileBlocksReader = new(files);
+            using SingleThreadFileBlocksReader singleThreadFileBlocksReader = new(files);
 
             Thread readThread = new(singleThreadFileBlocksReader.StartReading);
             readThread.Start();
 
-            FileBlocksHandler handler = new(singleThreadFileBlocksReader.ReadedBlocks, SHA512.Create());
+            using FileBlocksHandler handler = new(singleThreadFileBlocksReader.ReadedBlocks, SHA512.Create());
 
             CancellationTokenSource cancellationSource = new();
 

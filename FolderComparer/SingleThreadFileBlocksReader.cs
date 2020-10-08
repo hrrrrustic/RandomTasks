@@ -11,7 +11,7 @@ using FolderComparer.Tools;
 
 namespace FolderComparer
 {
-    public sealed class SingleThreadFileBlocksReader
+    public sealed class SingleThreadFileBlocksReader : IDisposable
     {
         private const Int32 BlockSize = 4096;
         private readonly List<Task> _blockPushingTasks = new();
@@ -102,6 +102,11 @@ namespace FolderComparer
                 return new Buffer(new Byte[size], size, false);
 
             return new Buffer(ArrayPool<Byte>.Shared.Rent(size), size, true);
-        }   
+        }
+
+        public void Dispose()
+        {
+            ReadedBlocks?.Dispose();
+        }
     }
 }

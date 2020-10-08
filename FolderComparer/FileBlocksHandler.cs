@@ -12,7 +12,7 @@ using FolderComparer.Tools;
 
 namespace FolderComparer
 {
-    public class FileBlocksHandler
+    public class FileBlocksHandler : IDisposable
     {
         public readonly BlockingCollection<FileBlock> Blocks;
         private readonly BlockingCollection<HashedFileBlock> HashedBlocks = new(new ConcurrentQueue<HashedFileBlock>());
@@ -104,6 +104,13 @@ namespace FolderComparer
                     hash = hashAlgorithm.ComputeHash(hash.Concat(file.Key.ByteHash).ToArray());
 
             return new HashedLocalFolder(files, hash);
+        }
+
+        public void Dispose()
+        {
+            HashedBlocks?.Dispose();
+            Blocks?.Dispose();
+            _hashAlgorithm.Dispose();
         }
     }
 }
