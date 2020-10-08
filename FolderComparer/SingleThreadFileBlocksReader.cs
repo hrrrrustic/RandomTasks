@@ -13,7 +13,7 @@ namespace FolderComparer
 {
     public sealed class SingleThreadFileBlocksReader
     {
-        private const Int32 BlockSize = 1025;
+        private const Int32 BlockSize = 4096;
         private readonly List<Task> _blockPushingTasks = new();
         private static readonly AutoResetEvent _resetEvent = new(true);
         public readonly BlockingCollection<FileBlock> ReadedBlocks = new(new ConcurrentQueue<FileBlock>());
@@ -53,7 +53,7 @@ namespace FolderComparer
                     _resetEvent.Set();
                     throw new FileNotFoundException(queuedFile.FileInfo.FilePath);
                 }
-
+                
                 ReadBlocks(queuedFile);
             }
             Task.WaitAll(_blockPushingTasks.ToArray());
@@ -82,20 +82,16 @@ namespace FolderComparer
             }
         }
 
-        private Int32 ReadBlock(Stream stream, Int32 bufferSize, out Buffer readedBlock)
+        private Int32 ReadBlock(Stream stream, Int32 bufferSize, out Buffer buffer)
         {
-            readedBlock = null;
-
-            Buffer buffer = GetBuffer(bufferSize);
+            buffer = GetBuffer(bufferSize);
             Int32 readedCount = stream.Read(buffer.ByteBuffer, 0, bufferSize);
-
-            if (readedCount > 0)
-                readedBlock = buffer;
-            else
-                buffer.Dispose();
 
             if (readedCount != bufferSize)
                 buffer.UpdateActualSize(readedCount);
+
+            if (readedCount <= 0)
+                buffer.Dispose();
 
             return readedCount;
         }

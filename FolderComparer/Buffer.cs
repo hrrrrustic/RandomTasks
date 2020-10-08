@@ -14,6 +14,9 @@ namespace FolderComparer
 
         public void UpdateActualSize(Int32 newActualSize)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(Buffer));
+
             if (newActualSize < 0 || newActualSize > ByteBuffer.Length)
                 throw new ArgumentException();
 
