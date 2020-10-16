@@ -75,8 +75,8 @@ namespace FolderComparer
                 .ToDictionary(k => k.Key, x => x
                     .Value
                     .Select(k => k.Value)
-                    .GroupBy(x => x.Hash)
-                    .ToDictionary(x => new DictionaryKeyHash(x.Key), y => y
+                    .GroupBy(x => new DictionaryKeyArray(x.Hash))
+                    .ToDictionary(x => x.Key, y => y
                         .OrderBy(e => Encoding.Default.GetString(e.Hash)) // TODO : Это костыль т.к. хеш у меня считается через жопу. Мне нужно гарантировать одинаковый порядок, а больше никак и не засортировать
                         .ToList())
                     .ToHashedFolder(_hashAlgorithm));
@@ -95,7 +95,7 @@ namespace FolderComparer
             return new HashedLocalFile(info, hash);
         }
 
-        public static HashedLocalFolder MergeFilesHash(Dictionary<DictionaryKeyHash, List<HashedLocalFile>> files, HashAlgorithm hashAlgorithm)
+        public static HashedLocalFolder MergeFilesHash(Dictionary<DictionaryKeyArray, List<HashedLocalFile>> files, HashAlgorithm hashAlgorithm)
         {
             Byte[] hash = new Byte[hashAlgorithm.HashSize];
 

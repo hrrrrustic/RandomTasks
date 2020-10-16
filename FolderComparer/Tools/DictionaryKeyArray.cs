@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace FolderComparer.Tools
 {
-    public class DictionaryKeyHash : IEquatable<DictionaryKeyHash>
+    public class DictionaryKeyArray : IEquatable<DictionaryKeyArray>
     {
         public readonly Byte[] ByteHash;
-        public DictionaryKeyHash(Byte[] hash) => ByteHash = hash;
+        public DictionaryKeyArray(Byte[] array) => ByteHash = array;
 
-        public bool Equals(DictionaryKeyHash other)
+        public bool Equals(DictionaryKeyArray other)
         {
             if (other is null)
                 return false;
@@ -30,7 +32,7 @@ namespace FolderComparer.Tools
                 int hash = (int)2166136261;
 
                 for (int i = 0; i < ByteHash.Length; i++)
-                    hash = (hash ^ByteHash[i]) * p;
+                    hash = (hash ^ ByteHash[i]) * p;
 
                 hash += hash << 13;
                 hash ^= hash >> 7;

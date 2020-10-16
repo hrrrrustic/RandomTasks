@@ -9,7 +9,7 @@ namespace FolderComparer.Tools
 {
     public static class IEnumerableExtensions
     {
-        public static HashedLocalFolder ToHashedFolder(this Dictionary<DictionaryKeyHash, List<HashedLocalFile>> files, HashAlgorithm algorithm) 
+        public static HashedLocalFolder ToHashedFolder(this Dictionary<DictionaryKeyArray, List<HashedLocalFile>> files, HashAlgorithm algorithm) 
             => FileBlocksHandler.MergeFilesHash(files, algorithm);
         public static HashedLocalFile ToHashedFile(this IEnumerable<HashedFileBlock> blocks, HashAlgorithm algorithm) 
             => FileBlocksHandler.MergeBlocksHash(blocks.ToList(), algorithm);

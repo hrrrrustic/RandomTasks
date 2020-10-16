@@ -7,10 +7,10 @@ namespace FolderComparer.Folders
 {
     public class HashedLocalFolder
     {
-        public readonly IReadOnlyDictionary<DictionaryKeyHash, List<HashedLocalFile>> HashedFiles;
+        public readonly IReadOnlyDictionary<DictionaryKeyArray, List<HashedLocalFile>> HashedFiles;
         public readonly Byte[] Hash;
 
-        public HashedLocalFolder(Dictionary<DictionaryKeyHash, List<HashedLocalFile>> hashedFiles, Byte[] hash) => (HashedFiles, Hash) = (hashedFiles, hash);
+        public HashedLocalFolder(Dictionary<DictionaryKeyArray, List<HashedLocalFile>> hashedFiles, Byte[] hash) => (HashedFiles, Hash) = (hashedFiles, hash);
 
         #region ObjectOverride
         public Boolean Equals(HashedLocalFolder other)
