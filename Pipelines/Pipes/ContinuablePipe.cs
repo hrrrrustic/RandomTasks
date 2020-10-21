@@ -5,7 +5,7 @@ namespace Pipelines.Pipes
 {
     public abstract partial class ContinuablePipe<TOut> : Pipe
     {
-        public IPipeStartItem<TOut> PipeItem { get; }
+        protected IPipeStartItem<TOut> PipeItem { get; }
 
         protected ContinuablePipe(IPipeStartItem<TOut> item, bool isParallel) : base(isParallel)
         {

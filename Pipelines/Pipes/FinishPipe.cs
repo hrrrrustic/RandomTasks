@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace Pipelines.Pipes
 {
     public class FinishPipe<TIn, TResult> : Pipe
     {
         private readonly Func<BlockingCollection<TIn>, TResult> _func;
-        private readonly Pipe _prevPipe;
+        private readonly ContinuablePipe<TIn> _prevPipe;
 
         public BlockingCollection<TIn> Input { get; set; }
 
@@ -21,8 +22,18 @@ namespace Pipelines.Pipes
         }
         public TResult GetResult()
         {
+            if (IsParallel)
+            {
+                Thread runThread = new Thread(_prevPipe.Execute);
+                runThread.Start();
+                var res = _func.Invoke(Input);
+                runThread.Join();
+                return res;
+            }
+
             _prevPipe.Execute();
-            return _func.Invoke(Input);
+            var res2 = _func.Invoke(Input);
+            return res2;
         }
 
         internal override void Execute()
