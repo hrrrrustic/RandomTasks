@@ -3,9 +3,9 @@ using System.Collections.Concurrent;
 
 namespace FolderComparer.Pipes
 {
-    public abstract class Pipe : IPipeItem
+    public abstract class Pipe
     {
-        public abstract void Execute();
+        internal abstract void Execute();
     }
 
     public class Pipe<T1, T2> : ContinuablePipe<T2>
@@ -22,7 +22,7 @@ namespace FolderComparer.Pipes
             return new FinishPipe<T2, TResult>(func, PipeItem.Output, this);
         }
 
-        public override void Execute()
+        internal override void Execute()
         {
             _prevPipe.Execute();
             PipeItem.Execute();

@@ -4,7 +4,7 @@
     {
         public StartPipe(IPipeStartItem<T1> action) : base(action) {}
 
-        public override void Execute()
+        internal override void Execute()
         {
             PipeItem.Execute();
         }
