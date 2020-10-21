@@ -4,18 +4,18 @@ using System.Text;
 
 namespace FolderComparer.Tools
 {
-    public class FolderCompareResult
+    public class DirectoryCompareResult
     {
         public readonly IReadOnlyList<(String, String)> Matches;
         public readonly IReadOnlyList<String> Differences;
         public readonly Boolean IsIdentical;
 
-        public FolderCompareResult(IReadOnlyList<(String, String)> matches, IReadOnlyList<String> differences) 
+        public DirectoryCompareResult(IReadOnlyList<(String, String)> matches, IReadOnlyList<String> differences) 
             => (Matches, Differences, IsIdentical) = (matches, differences, differences.Count == 0);
 
-        private FolderCompareResult() => (Matches, Differences, IsIdentical) = (new List<(String, String)>(0), new List<String>(0), true);
+        private DirectoryCompareResult() => (Matches, Differences, IsIdentical) = (new List<(String, String)>(0), new List<String>(0), true);
 
-        public static FolderCompareResult IdenticalFoldersResult => new FolderCompareResult();
+        public static DirectoryCompareResult IdenticalFoldersResult => new DirectoryCompareResult();
 
         public override String ToString()
         {

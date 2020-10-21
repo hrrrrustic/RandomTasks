@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
@@ -11,15 +12,15 @@ namespace FolderComparer
 {
     public class FolderComparer
     {
-        public FolderCompareResult Compare(String firstFolderPath, String secondFolderPath)
+        public DirectoryCompareResult Compare(String firstFolderPath, String secondFolderPath)
             => Compare(new LocalFolder(firstFolderPath), new LocalFolder(secondFolderPath));
 
-        public FolderCompareResult Compare(LocalFolder firstFolder, LocalFolder secondFolder)
+        public DirectoryCompareResult Compare(LocalFolder firstFolder, LocalFolder secondFolder)
         {
             if (firstFolder.IsEmpty || secondFolder.IsEmpty)
             {
                 if (firstFolder.IsEmpty && secondFolder.IsEmpty)
-                    return FolderCompareResult.IdenticalFoldersResult;
+                    return DirectoryCompareResult.IdenticalFoldersResult;
 
                 var notEmptyFolder = firstFolder;
 
@@ -31,7 +32,7 @@ namespace FolderComparer
                     .Select(k => k.FileInfo.FilePath)
                     .ToList();
 
-                return new FolderCompareResult(new List<(String, String)>(0), firstFolderFiles);
+                return new DirectoryCompareResult(new List<(String, String)>(0), firstFolderFiles);
             }
 
             var allFiles = GetAllFiles(firstFolder, secondFolder);
@@ -41,7 +42,7 @@ namespace FolderComparer
             HashedLocalFolder secondHashedFolder = folders[secondFolder.FolderId];
 
             if (firstHashedFolder == secondHashedFolder)
-                return FolderCompareResult.IdenticalFoldersResult;
+                return DirectoryCompareResult.IdenticalFoldersResult;
 
             return firstHashedFolder.CompareTo(secondHashedFolder);
         }

@@ -52,10 +52,10 @@ namespace FolderComparer.Folders
             return !(first == second);
         }
 
-        public FolderCompareResult CompareTo(HashedLocalFolder other)
+        public DirectoryCompareResult CompareTo(HashedLocalFolder other)
         {
             if (Hash == other.Hash)
-                return FolderCompareResult.IdenticalFoldersResult;
+                return DirectoryCompareResult.IdenticalFoldersResult;
 
             List<(String, String)> matches = new();
             List<String> differences = new();
@@ -99,7 +99,7 @@ namespace FolderComparer.Folders
                 WriteDiffIfExtraFiles(otherFiles, minCount);
             }
 
-            return new FolderCompareResult(matches, differences);
+            return new DirectoryCompareResult(matches, differences);
 
             IEnumerable<String> GetFileNames(IEnumerable<HashedLocalFile> files) => files.Select(k => k.LocalFile.FilePath);
 
