@@ -8,18 +8,18 @@ namespace FolderComparer.Pipes
         internal abstract void Execute();
     }
 
-    public class Pipe<T1, T2> : ContinuablePipe<T2>
+    public class Pipe<TIn, TOut> : ContinuablePipe<TOut>
     {
-        private readonly ContinuablePipe<T1> _prevPipe;
+        private readonly ContinuablePipe<TIn> _prevPipe;
 
-        internal Pipe(IPipeMiddleItem<T1, T2> pipeAction, ContinuablePipe<T1> prevPipe) : base(pipeAction)
+        internal Pipe(IPipeMiddleItem<TIn, TOut> pipeAction, ContinuablePipe<TIn> prevPipe) : base(pipeAction)
         {
             _prevPipe = prevPipe;
         }
 
-        public FinishPipe<T2, TResult> FinishWith<TResult>(Func<BlockingCollection<T2>, TResult> func)
+        public FinishPipe<TOut, TResult> FinishWith<TResult>(Func<BlockingCollection<TOut>, TResult> func)
         {
-            return new FinishPipe<T2, TResult>(func, PipeItem.Output, this);
+            return new FinishPipe<TOut, TResult>(func, PipeItem.Output, this);
         }
 
         internal override void Execute()

@@ -3,60 +3,60 @@ using System.Collections.Concurrent;
 
 namespace FolderComparer.Pipes
 {
-    public abstract class ContinuablePipe<TOutput> : Pipe
+    public abstract class ContinuablePipe<TOut> : Pipe
     {
-        public IPipeStartItem<TOutput> PipeItem { get; }
+        public IPipeStartItem<TOut> PipeItem { get; }
 
-        protected ContinuablePipe(IPipeStartItem<TOutput> item)
+        protected ContinuablePipe(IPipeStartItem<TOut> item)
         {
             PipeItem = item;
         }
 
-        public Pipe<TOutput, TNext> ContinueWith<TNext>(
-            Func<BlockingCollection<TOutput>, BlockingCollection<TNext>, IPipeMiddleItem<TOutput, TNext>> creator)
+        public Pipe<TOut, TNextOut> ContinueWith<TNextOut>(
+            Func<BlockingCollection<TOut>, BlockingCollection<TNextOut>, IPipeMiddleItem<TOut, TNextOut>> creator)
         {
-            return ContinueWith(creator, new ConcurrentQueue<TNext>());
+            return ContinueWith(creator, new ConcurrentQueue<TNextOut>());
         }
 
-        public Pipe<TOutput, TNext> ContinueWith<TNext>(
-          Func<BlockingCollection<TOutput>, BlockingCollection<TNext>, IPipeMiddleItem<TOutput, TNext>> creator,
-          IProducerConsumerCollection<TNext> outputConnection)
+        public Pipe<TOut, TNextOut> ContinueWith<TNextOut>(
+          Func<BlockingCollection<TOut>, BlockingCollection<TNextOut>, IPipeMiddleItem<TOut, TNextOut>> creator,
+          IProducerConsumerCollection<TNextOut> outputConnection)
         {
-            return ContinueWith(creator, new BlockingCollection<TNext>(outputConnection));
+            return ContinueWith(creator, new BlockingCollection<TNextOut>(outputConnection));
         }
 
-        public Pipe<TOutput, TNext> ContinueWith<TNext>(
-           Func<BlockingCollection<TOutput>, BlockingCollection<TNext>, IPipeMiddleItem<TOutput, TNext>> creator,
-           BlockingCollection<TNext> outputConnection)
+        public Pipe<TOut, TNextOut> ContinueWith<TNextOut>(
+           Func<BlockingCollection<TOut>, BlockingCollection<TNextOut>, IPipeMiddleItem<TOut, TNextOut>> creator,
+           BlockingCollection<TNextOut> outputConnection)
         {
             var pipeItem = creator.Invoke(PipeItem.Output, outputConnection);
 
             return ContinueWith(pipeItem);
         }
 
-        public Pipe<TOutput, TNext> ContinueWith<TNext>(
-            Action<BlockingCollection<TOutput>, BlockingCollection<TNext>> action)
+        public Pipe<TOut, TNextOut> ContinueWith<TNextOut>(
+            Action<BlockingCollection<TOut>, BlockingCollection<TNextOut>> action)
         {
-            return ContinueWith(action, new ConcurrentQueue<TNext>());
+            return ContinueWith(action, new ConcurrentQueue<TNextOut>());
         }
 
-        public Pipe<TOutput, TNext> ContinueWith<TNext>(
-            Action<BlockingCollection<TOutput>, BlockingCollection<TNext>> action, IProducerConsumerCollection<TNext> outputConnection)
+        public Pipe<TOut, TNextOut> ContinueWith<TNextOut>(
+            Action<BlockingCollection<TOut>, BlockingCollection<TNextOut>> action, IProducerConsumerCollection<TNextOut> outputConnection)
         {
-            return ContinueWith(action, new BlockingCollection<TNext>(outputConnection));
+            return ContinueWith(action, new BlockingCollection<TNextOut>(outputConnection));
         }
 
-        public Pipe<TOutput, TNext> ContinueWith<TNext>(
-          Action<BlockingCollection<TOutput>, BlockingCollection<TNext>> action, BlockingCollection<TNext> outputConnection)
+        public Pipe<TOut, TNextOut> ContinueWith<TNextOut>(
+          Action<BlockingCollection<TOut>, BlockingCollection<TNextOut>> action, BlockingCollection<TNextOut> outputConnection)
         {
-            var pipeAction = new PipeAction<TOutput, TNext>(action, PipeItem.Output, outputConnection);
+            var pipeAction = new PipeAction<TOut, TNextOut>(action, PipeItem.Output, outputConnection);
 
             return ContinueWith(pipeAction);
         }
 
-        internal Pipe<TOutput, TNext> ContinueWith<TNext>(IPipeMiddleItem<TOutput, TNext> item)
+        internal Pipe<TOut, TNextOut> ContinueWith<TNextOut>(IPipeMiddleItem<TOut, TNextOut> item)
         {
-            return new Pipe<TOutput, TNext>(item, this);
+            return new Pipe<TOut, TNextOut>(item, this);
         }
     }
 }

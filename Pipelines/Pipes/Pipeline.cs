@@ -15,7 +15,7 @@ namespace FolderComparer.Pipes
             return Start(creator, new ConcurrentQueue<TOut>());
         }
 
-        public static StartPipe<TOut> Start<TOut>(Func<BlockingCollection<TOut>, IPipeStartItem<TOut>> creator, 
+        public static StartPipe<TOut> Start<TOut>(Func<BlockingCollection<TOut>, IPipeStartItem<TOut>> creator,
             IProducerConsumerCollection<TOut> connecntin)
         {
             var pipeAction = creator.Invoke(new BlockingCollection<TOut>(connecntin));
