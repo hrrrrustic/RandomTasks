@@ -1,5 +1,5 @@
 ﻿using FolderComparer.Files;
-using FolderComparer.Pipes;
+using Pipelines.Pipes;
 using FolderComparer.Tools;
 using System;
 using System.Collections.Generic;

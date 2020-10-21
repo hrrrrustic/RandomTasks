@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-namespace FolderComparer.Pipes
+namespace Pipelines.Pipes
 {
     internal class PipeAction<TIn, TOut> : IPipeMiddleItem<TIn, TOut>
     {

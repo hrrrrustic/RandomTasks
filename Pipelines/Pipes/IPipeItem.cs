@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace FolderComparer.Pipes
+namespace Pipelines.Pipes
 {
     public interface IPipeItem
     {

@@ -1,4 +1,4 @@
-﻿using FolderComparer.Pipes;
+﻿using Pipelines.Pipes;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

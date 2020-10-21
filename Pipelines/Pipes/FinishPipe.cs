@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-namespace FolderComparer.Pipes
+namespace Pipelines.Pipes
 {
-    public class FinishPipe<TIn, TResult> : IPipeLastItem<TIn>
+    public class FinishPipe<TIn, TResult> : Pipe
     {
         private readonly Func<BlockingCollection<TIn>, TResult> _func;
         private readonly Pipe _prevPipe;
 
         public BlockingCollection<TIn> Input { get; set; }
 
-        public FinishPipe(Func<BlockingCollection<TIn>, TResult> func,
+        internal FinishPipe(Func<BlockingCollection<TIn>, TResult> func,
             BlockingCollection<TIn> input,
-            ContinuablePipe<TIn> prevPipe)
+            ContinuablePipe<TIn> prevPipe,
+            bool isParallel) : base(isParallel)
         {
             _func = func;
             Input = input;
@@ -24,7 +25,7 @@ namespace FolderComparer.Pipes
             return _func.Invoke(Input);
         }
 
-        public void Execute()
+        internal override void Execute()
         {
             GetResult();
         }

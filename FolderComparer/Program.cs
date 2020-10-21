@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using FolderComparer.Folders;
-using FolderComparer.Pipes;
+using Pipelines.Pipes;
 using FolderComparer.Tools;
 
 namespace FolderComparer
