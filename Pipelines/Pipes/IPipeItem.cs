@@ -1,4 +1,6 @@
-﻿namespace FolderComparer.Pipes
+﻿using System.Collections.Concurrent;
+
+namespace FolderComparer.Pipes
 {
     public interface IPipeItem
     {
@@ -6,11 +8,11 @@
     }
     public interface IPipeStartItem<TOut> : IPipeItem
     {
-        IAddingCompletableCollection<TOut> Output { get; }
+        BlockingCollection<TOut> Output { get; }
     }
     public interface IPipeLastItem<TIn> : IPipeItem
     {
-        IAddingCompletableCollection<TIn> Input { get; }
+        BlockingCollection<TIn> Input { get; }
     }
     public interface IPipeMiddleItem<TIn, TOut> : IPipeLastItem<TIn>, IPipeStartItem<TOut>
     {

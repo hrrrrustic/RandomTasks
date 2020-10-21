@@ -50,43 +50,39 @@ namespace FolderComparer
             Console.WriteLine(res);
         }
 
-        public static void GenerateNumbers(IAddingCompletableCollection<int> destination)
-        {
-          
-        }
 
-        public static void SquareNumbers(IAddingCompletableCollection<int> source, IAddingCompletableCollection<int> destination)
+        public static void SquareNumbers(BlockingCollection<int> source, BlockingCollection<int> destination)
         {
-            while(!source.IsEmpty)
+            while(!source.IsCompleted || source.Count != 0)
             {
-                var item = source.GetItem();
-                destination.PushItem(item * item);
+                var item = source.Take();
+                destination.Add(item * item);
             }
 
-            destination.CompletePushing();
+            destination.CompleteAdding();
         }
 
-        public static void ConvertToReverseString(IAddingCompletableCollection<int> source, IAddingCompletableCollection<string> destination)
+        public static void ConvertToReverseString(BlockingCollection<int> source, BlockingCollection<string> destination)
         {
             string res = string.Empty;
 
-            while (!source.IsEmpty)
+            while (!source.IsCompleted || source.Count != 0)
             {
-                var strinItem = source.GetItem().ToString();
+                var strinItem = source.Take().ToString();
                 var item = new string(strinItem.Reverse().ToArray());
-                destination.PushItem(item);
+                destination.Add(item);
             }
 
-            destination.CompletePushing();
+            destination.CompleteAdding();
         }
 
-        public static string GetOneString(IAddingCompletableCollection<string> source)
+        public static string GetOneString(BlockingCollection<string> source)
         {
             string res = string.Empty;
 
-            while(!source.IsEmpty)
+            while(!source.IsCompleted || source.Count != 0)
             {
-                res += source.GetItem();
+                res += source.Take();
                 res += Environment.NewLine;
             }
 
@@ -96,9 +92,9 @@ namespace FolderComparer
 
     public class NumberGenerator : IPipeStartItem<int>
     {
-        public IAddingCompletableCollection<int> Output { get; private set; }
+        public BlockingCollection<int> Output { get; private set; }
 
-        public NumberGenerator(IAddingCompletableCollection<int> output)
+        public NumberGenerator(BlockingCollection<int> output)
         {
             Output = output;
         }
@@ -107,43 +103,43 @@ namespace FolderComparer
         {
             for (int i = 0; i < 100; i++)
             {
-                Output.PushItem(i);
+                Output.TryAdd(i);
             }
 
-            Output.CompletePushing();
+            Output.CompleteAdding();
         }
     }
 
     public class Squarer : IPipeMiddleItem<int, int>
     {
-        public IAddingCompletableCollection<int> Input { get; private set; }
+        public BlockingCollection<int> Input { get; private set; }
 
-        public IAddingCompletableCollection<int> Output { get; private set; }
+        public BlockingCollection<int> Output { get; private set; }
 
-        public Squarer(IAddingCompletableCollection<int> input, IAddingCompletableCollection<int> output)
-        {
+        public Squarer(BlockingCollection<int> input, BlockingCollection<int> output)
+        { 
             Input = input;
             Output = output;
         }
         public void Execute()
         {
-            while (!Input.IsEmpty)
+            while (!Input.IsCompleted || Input.Count != 0)
             {
-                var item = Input.GetItem();
-                Output.PushItem(item * item);
+                var item = Input.Take();
+                Output.Add(item * item);
             }
 
-            Output.CompletePushing();
+            Output.CompleteAdding();
         }
     }
 
     public class Converter : IPipeMiddleItem<int, string>
     {
-        public IAddingCompletableCollection<int> Input {get; init;}
+        public BlockingCollection<int> Input {get; init;}
 
-        public IAddingCompletableCollection<string> Output { get; init; }
+        public BlockingCollection<string> Output { get; init; }
 
-        public Converter(IAddingCompletableCollection<int> input, IAddingCompletableCollection<string> output)
+        public Converter(BlockingCollection<int> input, BlockingCollection<string> output)
         {
             Input = input;
             Output = output;
@@ -153,14 +149,14 @@ namespace FolderComparer
         {
             string res = string.Empty;
 
-            while (!Input.IsEmpty)
+            while (!Input.IsCompleted || Input.Count != 0)
             {
-                var strinItem = Input.GetItem().ToString();
+                var strinItem = Input.Take().ToString();
                 var item = new string(strinItem.Reverse().ToArray());
-                Output.PushItem(item);
+                Output.Add(item);
             }
 
-            Output.CompletePushing();
+            Output.CompleteAdding();
         }
     }
 }

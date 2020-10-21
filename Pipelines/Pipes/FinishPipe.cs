@@ -1,16 +1,17 @@
 ﻿using System;
+using System.Collections.Concurrent;
 
 namespace FolderComparer.Pipes
 {
     public class FinishPipe<TIn, TResult> : IPipeLastItem<TIn>
     {
-        private readonly Func<IAddingCompletableCollection<TIn>, TResult> _func;
+        private readonly Func<BlockingCollection<TIn>, TResult> _func;
         private readonly Pipe _prevPipe;
 
-        public IAddingCompletableCollection<TIn> Input { get; set; }
+        public BlockingCollection<TIn> Input { get; set; }
 
-        public FinishPipe(Func<IAddingCompletableCollection<TIn>, TResult> func,
-            IAddingCompletableCollection<TIn> input,
+        public FinishPipe(Func<BlockingCollection<TIn>, TResult> func,
+            BlockingCollection<TIn> input,
             ContinuablePipe<TIn> prevPipe)
         {
             _func = func;

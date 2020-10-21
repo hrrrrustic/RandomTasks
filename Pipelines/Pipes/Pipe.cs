@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 
 namespace FolderComparer.Pipes
 {
@@ -16,7 +17,7 @@ namespace FolderComparer.Pipes
             _prevPipe = prevPipe;
         }
 
-        public FinishPipe<T2, TResult> FinishWith<TResult>(Func<IAddingCompletableCollection<T2>, TResult> func)
+        public FinishPipe<T2, TResult> FinishWith<TResult>(Func<BlockingCollection<T2>, TResult> func)
         {
             return new FinishPipe<T2, TResult>(func, PipeItem.Output, this);
         }

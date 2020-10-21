@@ -1,5 +1,6 @@
 ﻿using FolderComparer.Pipes;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace FolderComparer
             _directories = directories;
         }
 
-        public IAddingCompletableCollection<ILocalFile> Output { get; set; }
+        public IProducerConsumerCollection<ILocalFile> Output { get; set; }
 
         public void Enumerate()
         {

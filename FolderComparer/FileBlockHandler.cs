@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace FolderComparer
 {
     public class FileBlockHandler
     {
-        private readonly IAddingCompletableCollection<IHashedFileBlock> _destination;
-        public FileBlockHandler(IAddingCompletableCollection<IHashedFileBlock> destination)
+        private readonly IProducerConsumerCollection<IHashedFileBlock> _destination;
+        public FileBlockHandler(IProducerConsumerCollection<IHashedFileBlock> destination)
         {
             _destination = destination;
         }
@@ -35,8 +36,8 @@ namespace FolderComparer
     }
     public class HashedFileBlockHandler
     {
-        private readonly IAddingCompletableCollection<IHashedFlie> _destination;
-        public HashedFileBlockHandler(IAddingCompletableCollection<IHashedFlie> destination)
+        private readonly IProducerConsumerCollection<IHashedFlie> _destination;
+        public HashedFileBlockHandler(IProducerConsumerCollection<IHashedFlie> destination)
         {
             _destination = destination;
         }
@@ -62,8 +63,8 @@ namespace FolderComparer
     }
     public class HashedFileHandler
     {
-        private readonly IAddingCompletableCollection<IHashedDirectory> _destination;
-        public HashedFileHandler(IAddingCompletableCollection<IHashedDirectory> destination)
+        private readonly IProducerConsumerCollection<IHashedDirectory> _destination;
+        public HashedFileHandler(IProducerConsumerCollection<IHashedDirectory> destination)
         {
             _destination = destination;
         }

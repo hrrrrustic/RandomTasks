@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 
 namespace FolderComparer.Pipes
 {
@@ -9,9 +10,15 @@ namespace FolderComparer.Pipes
             return new StartPipe<TOut>(pipeItem);
         }
 
-        public static StartPipe<TOut> Start<TOut>(Func<IAddingCompletableCollection<TOut>, IPipeStartItem<TOut>> creator)
+        public static StartPipe<TOut> Start<TOut>(Func<BlockingCollection<TOut>, IPipeStartItem<TOut>> creator)
         {
-            var pipeAction = creator.Invoke(new SimplePushing<TOut>());
+            return Start(creator, new ConcurrentQueue<TOut>());
+        }
+
+        public static StartPipe<TOut> Start<TOut>(Func<BlockingCollection<TOut>, IPipeStartItem<TOut>> creator, 
+            IProducerConsumerCollection<TOut> connecntin)
+        {
+            var pipeAction = creator.Invoke(new BlockingCollection<TOut>(connecntin));
 
             return Start(pipeAction);
         }

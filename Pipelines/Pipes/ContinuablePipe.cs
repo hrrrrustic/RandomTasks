@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 
 namespace FolderComparer.Pipes
 {
@@ -12,19 +13,50 @@ namespace FolderComparer.Pipes
         }
 
         public Pipe<TOutput, TNext> ContinueWith<TNext>(
-            Func<IAddingCompletableCollection<TOutput>, IAddingCompletableCollection<TNext>, IPipeMiddleItem<TOutput, TNext>> creator)
+            Func<BlockingCollection<TOutput>, BlockingCollection<TNext>, IPipeMiddleItem<TOutput, TNext>> creator)
         {
-            var pipeItem = creator.Invoke(PipeItem.Output, new SimplePushing<TNext>());
-
-            return new Pipe<TOutput, TNext>(pipeItem, this);
+            return ContinueWith(creator, new ConcurrentQueue<TNext>());
         }
 
         public Pipe<TOutput, TNext> ContinueWith<TNext>(
-            Action<IAddingCompletableCollection<TOutput>, IAddingCompletableCollection<TNext>> action)
+          Func<BlockingCollection<TOutput>, BlockingCollection<TNext>, IPipeMiddleItem<TOutput, TNext>> creator,
+          IProducerConsumerCollection<TNext> outputConnection)
         {
-            var pipeAction = new PipeAction<TOutput, TNext>(action, PipeItem.Output, new SimplePushing<TNext>());
+            return ContinueWith(creator, new BlockingCollection<TNext>(outputConnection));
+        }
 
-            return new Pipe<TOutput, TNext>(pipeAction, this);
+        public Pipe<TOutput, TNext> ContinueWith<TNext>(
+           Func<BlockingCollection<TOutput>, BlockingCollection<TNext>, IPipeMiddleItem<TOutput, TNext>> creator,
+           BlockingCollection<TNext> outputConnection)
+        {
+            var pipeItem = creator.Invoke(PipeItem.Output, outputConnection);
+
+            return ContinueWith(pipeItem);
+        }
+
+        public Pipe<TOutput, TNext> ContinueWith<TNext>(
+            Action<BlockingCollection<TOutput>, BlockingCollection<TNext>> action)
+        {
+            return ContinueWith(action, new ConcurrentQueue<TNext>());
+        }
+
+        public Pipe<TOutput, TNext> ContinueWith<TNext>(
+            Action<BlockingCollection<TOutput>, BlockingCollection<TNext>> action, IProducerConsumerCollection<TNext> outputConnection)
+        {
+            return ContinueWith(action, new BlockingCollection<TNext>(outputConnection));
+        }
+
+        public Pipe<TOutput, TNext> ContinueWith<TNext>(
+          Action<BlockingCollection<TOutput>, BlockingCollection<TNext>> action, BlockingCollection<TNext> outputConnection)
+        {
+            var pipeAction = new PipeAction<TOutput, TNext>(action, PipeItem.Output, outputConnection);
+
+            return ContinueWith(pipeAction);
+        }
+
+        internal Pipe<TOutput, TNext> ContinueWith<TNext>(IPipeMiddleItem<TOutput, TNext> item)
+        {
+            return new Pipe<TOutput, TNext>(item, this);
         }
     }
 }

@@ -14,58 +14,27 @@ namespace FolderComparer
 {
     public class SingleThreadLocalFileBlocksReader2 //: IPipeMiddleItem<ILocalFile, IFileBlock>
     {
-        private readonly WaitConcurrentQueue<ILocalFile> _queuedFiles = new();
+        private readonly IProducerConsumerCollection<ILocalFile> _queuedFiles;
         private static readonly AutoResetEvent _resetEvent = new(true);
 
-        public IAddingCompletableCollection<IFileBlock> Output { get; init; }
+        public IProducerConsumerCollection<IFileBlock> Output { get; init; }
 
-        public IAddingCompletableCollection<ILocalFile> Input => _queuedFiles;
+        public IProducerConsumerCollection<ILocalFile> Input => _queuedFiles;
 
-        public SingleThreadLocalFileBlocksReader2(IAddingCompletableCollection<IFileBlock> destination)
+        public SingleThreadLocalFileBlocksReader2(IProducerConsumerCollection<IFileBlock> destination)
         {
             Output = destination;
         }
 
-        public void PushItem(ILocalFile item)
-        {
-            _queuedFiles.PushItem(item);
-        }
 
-        public static void StartReading(IAddingCompletableCollection<IFileBlock> dest)
+        public static void StartReading(IProducerConsumerCollection<IFileBlock> dest)
         {
             throw new NotImplementedException();
-        }
-
-        public void StartReading()
-        {
-            _resetEvent.WaitOne();
-
-            while (!_queuedFiles.IsEmpty)
-            {
-                if (_queuedFiles.AddingCompleted)
-                    return;
-
-                _queuedFiles.GetItem();
-            }
-
-            _resetEvent.Set();
-
-            throw new NotImplementedException();
-        }
-
-        public void CompletePushing()
-        {
-            _queuedFiles.CompletePushing();
         }
 
         public ILocalFile GetItem()
         {
             throw new NotImplementedException();
-        }
-
-        public void Execute()
-        {
-            StartReading();
         }
     }
 }
