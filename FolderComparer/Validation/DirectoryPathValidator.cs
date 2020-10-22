@@ -18,20 +18,24 @@ namespace FolderComparer
         public IValidationResult Validate(params string?[] items)
         {
             foreach (var item in items)
-                Validate(item);
+            {
+                var result = Validate(item);
+                if(!result.IsValid)
+                    return result;
+            }
 
-            throw new Exception();
+            return ValidationResult.SuccessValidation();
         }
 
         public IValidationResult Validate(string? item)
         {
             if (item is null)
-                throw new Exception();
+                return ValidationResult.ValidationFailed("Directori is null");
 
             if (!Directory.Exists(item))
-                throw new Exception();
+                return ValidationResult.ValidationFailed($"Directory {item} doesn't exist");
 
-            throw new Exception();
+            return ValidationResult.SuccessValidation();
         }
     }
 }
