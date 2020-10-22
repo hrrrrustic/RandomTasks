@@ -8,8 +8,10 @@ namespace FolderComparer
 {
     public interface IFile
     {
-        IHashedFlie HashFile();
     }
 
-    public interface ILocalFile : IFile { }
+    public interface ILocalFile : IFile 
+    { 
+        String Path { get; }
+    }
 }

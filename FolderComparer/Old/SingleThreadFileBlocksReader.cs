@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using FolderComparer.Blocks;
 using FolderComparer.Files;
+using FolderComparer.Old.Blocks;
+using FolderComparer.Old.Files;
 using FolderComparer.Tools;
 
 namespace FolderComparer
@@ -17,10 +18,10 @@ namespace FolderComparer
         private readonly List<Task> _blockPushingTasks = new();
         private static readonly AutoResetEvent _resetEvent = new(true);
         public readonly BlockingCollection<FileBlock> ReadedBlocks = new(new ConcurrentQueue<FileBlock>());
-        public readonly IReadOnlyCollection<LocalFile> QueuedFiles;
+        public readonly IReadOnlyCollection<LocalFile2> QueuedFiles;
         public ReadingState Status { get; private set; } = ReadingState.NotStarted;
 
-        public SingleThreadFileBlocksReader(IReadOnlyCollection<LocalFile> queuedFiles)
+        public SingleThreadFileBlocksReader(IReadOnlyCollection<LocalFile2> queuedFiles)
         {
             QueuedFiles = queuedFiles;
         }
@@ -44,7 +45,7 @@ namespace FolderComparer
             _resetEvent.WaitOne();
             Status = ReadingState.Reading;
 
-            foreach (LocalFile queuedFile in QueuedFiles)
+            foreach (LocalFile2 queuedFile in QueuedFiles)
             {
                 if (!queuedFile.IsExist)
                 {
@@ -62,10 +63,10 @@ namespace FolderComparer
             _resetEvent.Set();
         }
 
-        private void ReadBlocks(LocalFile file)
+        private void ReadBlocks(LocalFile2 file)
         {
-            LocalFileInfo info = file.FileInfo;
-            using FileStream fileStream = File.OpenRead(info.FilePath);
+            Guid fileId = Guid.NewGuid();
+            using FileStream fileStream = File.OpenRead(file.FileInfo.FilePath);
 
             Int64 length = fileStream.Length;
             Int32 bufferSize = length < BlockSize ? (Int32)length : BlockSize;
@@ -74,7 +75,7 @@ namespace FolderComparer
 
             while (ReadBlock(fileStream, bufferSize, out Buffer readedBlock) > 0)
             {
-                FileBlock block = new FileBlock(readedBlock, blockCount, info);
+                FileBlock block = new FileBlock(readedBlock, blockCount, fileId, false);
                 blockCount++;
 
                 Task pushing = Task.Run(() => ReadedBlocks.Add(block));

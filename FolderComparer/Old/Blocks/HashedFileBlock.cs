@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace FolderComparer.Blocks
+namespace FolderComparer.Old.Blocks
 {
     public class HashedFileBlock
     {

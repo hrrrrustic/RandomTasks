@@ -7,10 +7,10 @@ namespace FolderComparer.Folders
 {
     public class HashedLocalFolder
     {
-        public readonly IReadOnlyDictionary<DictionaryKeyArray, List<HashedLocalFile>> HashedFiles;
+        public readonly IReadOnlyDictionary<DictionaryKeyArray, List<Old.HashedLocalFile>> HashedFiles;
         public readonly Byte[] Hash;
 
-        public HashedLocalFolder(Dictionary<DictionaryKeyArray, List<HashedLocalFile>> hashedFiles, Byte[] hash) => (HashedFiles, Hash) = (hashedFiles, hash);
+        public HashedLocalFolder(Dictionary<DictionaryKeyArray, List<Old.HashedLocalFile>> hashedFiles, Byte[] hash) => (HashedFiles, Hash) = (hashedFiles, hash);
 
         #region ObjectOverride
         public Boolean Equals(HashedLocalFolder other)
@@ -101,9 +101,9 @@ namespace FolderComparer.Folders
 
             return new DirectoryCompareResult(matches, differences);
 
-            IEnumerable<String> GetFileNames(IEnumerable<HashedLocalFile> files) => files.Select(k => k.LocalFile.FilePath);
+            IEnumerable<String> GetFileNames(IEnumerable<Old.HashedLocalFile> files) => files.Select(k => k.LocalFile.FilePath);
 
-            void WriteDiffIfExtraFiles(List<HashedLocalFile> files, Int32 count)
+            void WriteDiffIfExtraFiles(List<Old.HashedLocalFile> files, Int32 count)
             {
                 if(files.Count > count)
                     differences.AddRange(GetFileNames(files.Skip(count)));

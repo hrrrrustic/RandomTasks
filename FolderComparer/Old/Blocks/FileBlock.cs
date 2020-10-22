@@ -3,7 +3,7 @@ using System.Buffers;
 using System.Linq;
 using System.Security.Cryptography;
 
-namespace FolderComparer.Blocks
+namespace FolderComparer.Old.Blocks
 {
     public sealed class FileBlock : IDisposable
     {

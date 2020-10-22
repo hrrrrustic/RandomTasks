@@ -40,6 +40,7 @@ namespace FolderComparer
         public void Execute()
         {
             Enumerate();
+            Output.CompleteAdding();
         }
     }
 }

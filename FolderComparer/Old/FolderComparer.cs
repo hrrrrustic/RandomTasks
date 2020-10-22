@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -8,7 +9,7 @@ using FolderComparer.Files;
 using FolderComparer.Folders;
 using FolderComparer.Tools;
 
-namespace FolderComparer
+namespace FolderComparer.Old
 {
     public class FolderComparer
     {
@@ -49,7 +50,7 @@ namespace FolderComparer
 
         private Dictionary<Guid, HashedLocalFolder> PrepareFolders(IReadOnlyCollection<LocalFile> files)
         {
-            using SingleThreadFileBlocksReader singleThreadFileBlocksReader = new(files);
+            using SingleThreadFileBlocksReader singleThreadFileBlocksReader = new(null);
 
             Thread readThread = new(singleThreadFileBlocksReader.StartReading);
             readThread.Start();
@@ -73,10 +74,13 @@ namespace FolderComparer
             return handler.BuildFolders();
         }
 
-        IReadOnlyCollection<LocalFile> GetAllFiles(LocalFolder firstFolder, LocalFolder secondFolder) 
-            => firstFolder
-                .GetFiles()
-                .Concat(secondFolder.GetFiles())
-                .ToList();
+        IReadOnlyCollection<LocalFile> GetAllFiles(LocalFolder firstFolder, LocalFolder secondFolder)
+        {
+            throw new Exception();
+            //return firstFolder
+            //               .GetFiles()
+            //               .Concat(secondFolder.GetFiles())
+            //               .ToList();
+        }
     }
 }

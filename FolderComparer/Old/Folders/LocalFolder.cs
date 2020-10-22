@@ -1,13 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using FolderComparer.Files;
+using FolderComparer.Old.Files;
 
 namespace FolderComparer.Folders
 {
     public class LocalFolder
     {
-        public readonly LocalFile[] Files;
+        public readonly LocalFile2[] Files;
         public readonly LocalFolder[] InnerFolders;
         public readonly String Path;
         public readonly Guid FolderId;
@@ -24,10 +24,10 @@ namespace FolderComparer.Folders
             InnerFolders = Array.Empty<LocalFolder>();
         }
 
-        private LocalFile[] InitializeFiles() =>
+        private LocalFile2[] InitializeFiles() =>
             Directory
                 .GetFiles(Path)
-                .Select(k => new LocalFile(k, FolderId))
+                .Select(k => new LocalFile2(k, FolderId))
                 .ToArray();
 
         private LocalFolder[] InitializeSubFolders() =>
@@ -36,7 +36,7 @@ namespace FolderComparer.Folders
                 .ToArray();
 
 
-        public LocalFile[] GetFiles()
+        public LocalFile2[] GetFiles()
         {
             return Files
                 .Union(InnerFolders

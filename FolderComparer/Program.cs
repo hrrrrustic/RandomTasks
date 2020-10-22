@@ -9,14 +9,15 @@ using System.Threading;
 
 namespace FolderComparer
 {
-    public class Program
+    public static class Program
     {
         public static void Main()
         {
-            TestPipeline();
-            return;
-            String? firstPath = Console.ReadLine();
-            String? secondPath = Console.ReadLine();
+            //TestPipeline();
+            //return;
+
+            String? firstPath = @"D:\Development\VisualStudio\SandBox\Test";
+            String? secondPath = @"D:\VSProjects\OptimizationMethods";
 
             var validateResult = new DirectoryPathValidator().Validate(firstPath, secondPath);
 
@@ -27,7 +28,6 @@ namespace FolderComparer
             }
             DirectoryInfo firstDirectory = new DirectoryInfo(firstPath);
             DirectoryInfo secondDirectory = new DirectoryInfo(secondPath);
-            
             try
             {
                 var result = new LocalDirectoryComparer().Compare(firstDirectory, secondDirectory);
@@ -42,7 +42,7 @@ namespace FolderComparer
         public static void TestPipeline()
         {
             var pipeline = Pipeline
-                .Start<int>(output => new NumberGenerator(output))
+                .Start<int>((output) => new NumberGenerator(output))
                 .ContinueParallelWith<int>(SquareNumbers)
                 .ContinueParallelWith<string>((input, output) => new Converter(input, output))
                 .FinishParallelWith(GetOneString);
@@ -51,6 +51,17 @@ namespace FolderComparer
             Console.WriteLine(res);
         }
 
+        public static void GenerateNumbers(BlockingCollection<int> Output)
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                Output.Add(i);
+            }
+
+            Output.CompleteAdding();
+            Thread.Sleep(2500);
+            Console.WriteLine("FINISH GENERATOR");
+        }
         public static void SquareNumbers(BlockingCollection<int> source, BlockingCollection<int> destination)
         {
             while(!source.IsCompleted || source.Count != 0)
@@ -60,7 +71,7 @@ namespace FolderComparer
                     var item = source.Take();
                     destination.Add(item * item);
                 }
-                catch (Exception)
+                catch (InvalidOperationException)
                 {
                     continue;
                 }
@@ -72,8 +83,6 @@ namespace FolderComparer
 
         public static void ConvertToReverseString(BlockingCollection<int> source, BlockingCollection<string> destination)
         {
-            string res = string.Empty;
-
             while (!source.IsCompleted || source.Count != 0)
             {
                 try
@@ -112,9 +121,9 @@ namespace FolderComparer
         }
     }
 
-    public class NumberGenerator : IPipeStartItem<int>
+    public sealed class NumberGenerator : IPipeStartItem<int>
     {
-        public BlockingCollection<int> Output { get; private set; }
+        public BlockingCollection<int> Output { get; }
 
         public NumberGenerator(BlockingCollection<int> output)
         {
@@ -140,14 +149,14 @@ namespace FolderComparer
         }
     }
 
-    public class Squarer : IPipeMiddleItem<int, int>
+    public sealed class Squarer : IPipeMiddleItem<int, int>
     {
-        public BlockingCollection<int> Input { get; private set; }
+        public BlockingCollection<int> Input { get; }
 
-        public BlockingCollection<int> Output { get; private set; }
+        public BlockingCollection<int> Output { get; }
 
         public Squarer(BlockingCollection<int> input, BlockingCollection<int> output)
-        { 
+        {
             Input = input;
             Output = output;
         }
@@ -164,7 +173,6 @@ namespace FolderComparer
                 {
                     continue;
                 }
-        
             }
 
             Console.WriteLine("FINISH SQUARER");
@@ -179,7 +187,7 @@ namespace FolderComparer
         }
     }
 
-    public class Converter : IPipeMiddleItem<int, string>
+    public sealed class Converter : IPipeMiddleItem<int, string>
     {
         public BlockingCollection<int> Input {get; init;}
 
@@ -193,8 +201,6 @@ namespace FolderComparer
 
         public void Execute()
         {
-            string res = string.Empty;
-
             while (!Input.IsCompleted || Input.Count != 0)
             {
                 try
@@ -207,7 +213,6 @@ namespace FolderComparer
                 {
                     continue;
                 }
-          
             }
 
             Output.CompleteAdding();

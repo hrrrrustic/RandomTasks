@@ -6,11 +6,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using FolderComparer.Blocks;
+using FolderComparer.Old.Blocks;
 using FolderComparer.Folders;
 using FolderComparer.Tools;
 
-namespace FolderComparer
+namespace FolderComparer.Old
 {
     public class FileBlocksHandler : IDisposable
     {
@@ -54,48 +54,48 @@ namespace FolderComparer
         }
         private void HashBlock(FileBlock block)
         {
-            HashedFileBlock hashedBlock = block.HashBlock(SHA512.Create());
-            block.Dispose();
-            HashedBlocks.Add(hashedBlock);
+            //HashedFileBlock hashedBlock = block.HashBlock(SHA512.Create());
+            //block.Dispose();
+            //HashedBlocks.Add(hashedBlock);
         }
 
         #region НеНадоСюдаСмотреть...
         public Dictionary<Guid, HashedLocalFolder> BuildFolders()
         {
-            var hashedFiles = HashedBlocks
-                        .GroupBy(k => k.LocalFileInfo.FolderId)
-                        .ToDictionary(k => k.Key, x => x
-                            .GroupBy(y => y.LocalFileInfo.FileId)
-                            .ToDictionary(x => x.Key, y => y
-                                .OrderBy(e => e.BlockNumber)
-                                .ToList()
-                                .ToHashedFile(_hashAlgorithm)));
+            //var hashedFiles = HashedBlocks
+            //            .GroupBy(k => k.LocalFileInfo.FolderId)
+            //            .ToDictionary(k => k.Key, x => x
+            //                .GroupBy(y => y.LocalFileInfo.FileId)
+            //                .ToDictionary(x => x.Key, y => y
+            //                    .OrderBy(e => e.BlockNumber)
+            //                    .ToList()
+            //                    .ToHashedFile(_hashAlgorithm)));
 
-            return hashedFiles
-                .ToDictionary(k => k.Key, x => x
-                    .Value
-                    .Select(k => k.Value)
-                    .GroupBy(x => new DictionaryKeyArray(x.Hash))
-                    .ToDictionary(x => x.Key, y => y
-                        .OrderBy(e => Encoding.Default.GetString(e.Hash)) // TODO : Это костыль т.к. хеш у меня считается через жопу. Мне нужно гарантировать одинаковый порядок, а больше никак и не засортировать
-                        .ToList())
-                    .ToHashedFolder(_hashAlgorithm));
-                  
+            //return hashedFiles
+            //    .ToDictionary(k => k.Key, x => x
+            //        .Value
+            //        .Select(k => k.Value)
+            //        .GroupBy(x => new DictionaryKeyArray(x.Hash))
+            //        .ToDictionary(x => x.Key, y => y
+            //            .OrderBy(e => Encoding.Default.GetString(e.Hash)) // TODO : Это костыль т.к. хеш у меня считается через жопу. Мне нужно гарантировать одинаковый порядок, а больше никак и не засортировать
+            //            .ToList())
+            //        .ToHashedFolder(_hashAlgorithm));
+            return null;
         }
         #endregion
 
         public static HashedLocalFile MergeBlocksHash(IReadOnlyList<HashedFileBlock> blocks, HashAlgorithm hashAlgorithm)
         {
-            LocalFileInfo info = blocks[0].LocalFileInfo;
-            Byte[] hash = new Byte[hashAlgorithm.HashSize];
+            //LocalFileInfo info = blocks[0].LocalFileInfo;
+            //Byte[] hash = new Byte[hashAlgorithm.HashSize];
 
-            foreach (HashedFileBlock block in blocks)
-                hash = hashAlgorithm.ComputeHash(hash.Concat(block.Hash).ToArray());
+            //foreach (HashedFileBlock block in blocks)
+            //    hash = hashAlgorithm.ComputeHash(hash.Concat(block.Hash).ToArray());
 
-            return new HashedLocalFile(info, hash);
+            return new HashedLocalFile(null, null);
         }
 
-        public static HashedLocalFolder MergeFilesHash(Dictionary<DictionaryKeyArray, List<HashedLocalFile>> files, HashAlgorithm hashAlgorithm)
+        public static HashedLocalFolder MergeFilesHash(Dictionary<DictionaryKeyArray, List<Old.HashedLocalFile>> files, HashAlgorithm hashAlgorithm)
         {
             Byte[] hash = new Byte[hashAlgorithm.HashSize];
 

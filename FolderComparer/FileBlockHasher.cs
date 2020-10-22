@@ -5,31 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using Pipelines.Pipes;
+using System.Security.Cryptography;
 
 namespace FolderComparer
 {
-    public class FileBlockHandler : IPipeMiddleItem<IFileBlock, IHashedFileBlock>
-    {
-        public BlockingCollection<IFileBlock> Input { get; }
-        public BlockingCollection<IHashedFileBlock> Output { get; }
-
-        public FileBlockHandler(BlockingCollection<IFileBlock> source, BlockingCollection<IHashedFileBlock> destination)
-        {
-            Input = source;
-            Output = destination;
-        }
-
-        public void Execute()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Dispose()
-        {
-            Input.Dispose();
-            Output.Dispose();
-        }
-    }
+   
     public class HashedFileBlockHandler : IPipeMiddleItem<IHashedFileBlock, IHashedFlie>
     {
         public HashedFileBlockHandler(BlockingCollection<IHashedFileBlock> source, BlockingCollection<IHashedFlie> destination)
