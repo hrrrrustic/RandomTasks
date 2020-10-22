@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FolderComparer.Files;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FolderComparer
 {
-    public class LocalDirectory : IDirectory<ILocalFile>
+    public class LocalDirectory : IDirectory<ILocalFile>, IEnumerable<ILocalFile>
     {
         private readonly DirectoryInfo _directoryInfo;
         public LocalDirectory(DirectoryInfo directoryInfo)
@@ -20,11 +22,25 @@ namespace FolderComparer
         public IEnumerable<ILocalFile> Enumerate()
         {
             foreach (var file in _directoryInfo.EnumerateFiles())
-                yield return default;
+                yield return new LocalFile(file);
 
             foreach (var subDirectory in _directoryInfo.EnumerateDirectories("*", SearchOption.AllDirectories))
+            {
                 foreach (var file in subDirectory.EnumerateFiles())
-                    yield return default;
+                {
+                    yield return new LocalFile(file);
+                }
+            }
+        }
+
+        public IEnumerator<ILocalFile> GetEnumerator()
+        {
+            return Enumerate().GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

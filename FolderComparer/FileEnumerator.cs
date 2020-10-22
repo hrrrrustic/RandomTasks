@@ -1,4 +1,5 @@
-﻿using Pipelines.Pipes;
+﻿using FolderComparer.Tools;
+using Pipelines.Pipes;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,17 +10,16 @@ using System.Threading.Tasks;
 
 namespace FolderComparer
 {
-    public class FileEnumator : IPipeStartItem<ILocalFile>
+    public sealed class FileEnumerator : IPipeStartItem<ILocalFile>
     {
         private readonly LocalDirectory[] _directories;
+        public BlockingCollection<ILocalFile> Output { get; set; }
 
-        public FileEnumator(BlockingCollection<ILocalFile> output, params LocalDirectory[] directories)
+        public FileEnumerator(BlockingCollection<ILocalFile> output, params LocalDirectory[] directories)
         {
             Output = output;
             _directories = directories;
         }
-
-        public BlockingCollection<ILocalFile> Output { get; set; }
 
         public void Dispose()
         {
@@ -28,7 +28,13 @@ namespace FolderComparer
 
         public void Enumerate()
         {
-            throw new Exception();
+            foreach (var directory in _directories)
+            {
+                foreach (var file in directory)
+                {
+                    Output.Add(file);
+                }
+            }
         }
 
         public void Execute()

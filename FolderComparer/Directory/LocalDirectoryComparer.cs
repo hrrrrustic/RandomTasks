@@ -22,7 +22,7 @@ namespace FolderComparer
         public DirectoryCompareResult Compare(LocalDirectory x, LocalDirectory y)
         {
             var pipeline = Pipeline
-                    .Start<ILocalFile>(output => new FileEnumator(output, x, y))
+                    .Start<ILocalFile>(output => new FileEnumerator(output, x, y))
                     .WithCancellation(default)
                     .ContinueWith<IFileBlock>((input, output) => new SingleThreadLocalFileBlocksReader(input, output))
                     .ContinueWith<IHashedFileBlock>((input, output) => new FileBlockHandler(input, output))

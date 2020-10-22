@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace FolderComparer.Files
+namespace FolderComparer.Old.Files
 {
     public class LocalFile
     {
