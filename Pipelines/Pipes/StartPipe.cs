@@ -1,4 +1,6 @@
-﻿namespace Pipelines.Pipes
+﻿using System.Threading;
+
+namespace Pipelines.Pipes
 {
     public class StartPipe<TOut> : ContinuablePipe<TOut>
     {
@@ -7,6 +9,16 @@
         internal override void Execute()
         {
             PipeItem.Execute();
+        }
+
+        public StartPipe<TOut> WithCancellation(CancellationToken cancellationToken)
+        {
+            return this;
+        }
+
+        public override void Dispose()
+        {
+            PipeItem.Dispose();
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Pipelines.Pipes
 {
-    public abstract class Pipe
+    public abstract class Pipe : IDisposable
     {
         protected bool IsParallel { get; }
         protected Pipe(bool isParallel)
@@ -12,12 +12,14 @@ namespace Pipelines.Pipes
             IsParallel = isParallel;
         }
         internal abstract void Execute();
+
+        public abstract void Dispose();
     }
 
     public class Pipe<TIn, TOut> : ContinuablePipe<TOut>
     {
         private readonly ContinuablePipe<TIn> _prevPipe;
-
+        private bool _isPrevPipeDisposed;
         internal Pipe(IPipeMiddleItem<TIn, TOut> pipeAction, ContinuablePipe<TIn> prevPipe, bool isParallel) : base(pipeAction, isParallel)
         {
             _prevPipe = prevPipe;
@@ -39,17 +41,38 @@ namespace Pipelines.Pipes
 
         internal override void Execute()
         {
-            if(IsParallel)
+            if (IsParallel)
+                ExecuteParallel();
+            else
+                ExecuteSequentially();
+
+            Dispose();
+        }
+
+        private void ExecuteParallel()
+        {
+            Thread runThread = new Thread(_prevPipe.Execute);
+            runThread.Start();
+            PipeItem.Execute();
+            runThread.Join();
+        }
+
+        private void ExecuteSequentially()
+        {
+            _prevPipe.Execute();
+            PipeItem.Execute();
+        }
+
+        public override void Dispose()
+        {
+            if (_isPrevPipeDisposed)
             {
-                Thread runThread = new Thread(_prevPipe.Execute);
-                runThread.Start();
-                PipeItem.Execute();
-                runThread.Join();
+                PipeItem.Dispose();
                 return;
             }
 
-            _prevPipe.Execute();
-            PipeItem.Execute();
+            _prevPipe.Dispose();
+            _isPrevPipeDisposed = true;
         }
     }
 }

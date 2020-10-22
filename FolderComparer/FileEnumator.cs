@@ -9,16 +9,22 @@ using System.Threading.Tasks;
 
 namespace FolderComparer
 {
-    public class FileEnumator //: IPipeStartItem<ILocalFile>
+    public class FileEnumator : IPipeStartItem<ILocalFile>
     {
         private readonly LocalDirectory[] _directories;
 
-        public FileEnumator(params LocalDirectory[] directories)
+        public FileEnumator(BlockingCollection<ILocalFile> output, params LocalDirectory[] directories)
         {
+            Output = output;
             _directories = directories;
         }
 
-        public IProducerConsumerCollection<ILocalFile> Output { get; set; }
+        public BlockingCollection<ILocalFile> Output { get; set; }
+
+        public void Dispose()
+        {
+            Output.Dispose();
+        }
 
         public void Enumerate()
         {

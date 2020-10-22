@@ -18,6 +18,12 @@ namespace Pipelines.Pipes
 
         public BlockingCollection<TOut> Output { get; }
 
+        public void Dispose()
+        {
+            Input.Dispose();
+            Output.Dispose();
+        }
+
         public void Execute()
         {
             _action.Invoke(Input, Output);

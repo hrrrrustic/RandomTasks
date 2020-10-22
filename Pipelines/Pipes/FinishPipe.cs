@@ -9,7 +9,7 @@ namespace Pipelines.Pipes
         private readonly Func<BlockingCollection<TIn>, TResult> _func;
         private readonly ContinuablePipe<TIn> _prevPipe;
 
-        public BlockingCollection<TIn> Input { get; set; }
+        private BlockingCollection<TIn> Input { get; }
 
         internal FinishPipe(Func<BlockingCollection<TIn>, TResult> func,
             BlockingCollection<TIn> input,
@@ -22,23 +22,39 @@ namespace Pipelines.Pipes
         }
         public TResult GetResult()
         {
+            TResult result;
             if (IsParallel)
-            {
-                Thread runThread = new Thread(_prevPipe.Execute);
-                runThread.Start();
-                var res = _func.Invoke(Input);
-                runThread.Join();
-                return res;
-            }
+                result = GetResultParallel();
+            else
+                result = GetResultSequentially();
 
-            _prevPipe.Execute();
-            var res2 = _func.Invoke(Input);
-            return res2;
+            Dispose();
+
+            return result;
         }
 
+        private TResult GetResultSequentially()
+        {
+            _prevPipe.Execute();
+            return _func.Invoke(Input);
+        }
+        private TResult GetResultParallel()
+        {
+            Thread runThread = new Thread(_prevPipe.Execute);
+            runThread.Start();
+            var res = _func.Invoke(Input);
+            runThread.Join();
+            return res;
+        }
         internal override void Execute()
         {
             GetResult();
+        }
+
+        public override void Dispose()
+        {
+            _prevPipe.Dispose();
+            Input.Dispose();
         }
     }
 }

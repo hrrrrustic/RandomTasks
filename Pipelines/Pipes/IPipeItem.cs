@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 
 namespace Pipelines.Pipes
 {
@@ -6,11 +7,11 @@ namespace Pipelines.Pipes
     {
         void Execute();
     }
-    public interface IPipeStartItem<TOut> : IPipeItem
+    public interface IPipeStartItem<TOut> : IPipeItem, IDisposable
     {
         BlockingCollection<TOut> Output { get; }
     }
-    public interface IPipeLastItem<TIn> : IPipeItem
+    public interface IPipeLastItem<TIn> : IPipeItem, IDisposable
     {
         BlockingCollection<TIn> Input { get; }
     }

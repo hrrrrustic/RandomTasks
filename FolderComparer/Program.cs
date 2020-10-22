@@ -5,6 +5,7 @@ using System.Linq;
 using FolderComparer.Folders;
 using Pipelines.Pipes;
 using FolderComparer.Tools;
+using System.Threading;
 
 namespace FolderComparer
 {
@@ -42,23 +43,30 @@ namespace FolderComparer
         {
             var pipeline = Pipeline
                 .Start<int>(output => new NumberGenerator(output))
-                .ContinueWith<int>(SquareNumbers)
-                .ContinueWith<string>((input, output) => new Converter(input, output))
-                .FinishWith(GetOneString);
+                .ContinueParallelWith<int>(SquareNumbers)
+                .ContinueParallelWith<string>((input, output) => new Converter(input, output))
+                .FinishParallelWith(GetOneString);
 
             var res = pipeline.GetResult();
             Console.WriteLine(res);
         }
 
-
         public static void SquareNumbers(BlockingCollection<int> source, BlockingCollection<int> destination)
         {
             while(!source.IsCompleted || source.Count != 0)
             {
-                var item = source.Take();
-                destination.Add(item * item);
+                try
+                {
+                    var item = source.Take();
+                    destination.Add(item * item);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
             }
 
+            Console.WriteLine("FINISH SQUARE");
             destination.CompleteAdding();
         }
 
@@ -68,9 +76,16 @@ namespace FolderComparer
 
             while (!source.IsCompleted || source.Count != 0)
             {
-                var strinItem = source.Take().ToString();
-                var item = new string(strinItem.Reverse().ToArray());
-                destination.Add(item);
+                try
+                {
+                    var strinItem = source.Take().ToString();
+                    var item = new string(strinItem.Reverse().ToArray());
+                    destination.Add(item);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
             }
 
             destination.CompleteAdding();
@@ -82,7 +97,14 @@ namespace FolderComparer
 
             while(!source.IsCompleted || source.Count != 0)
             {
-                res += source.Take();
+                try
+                {
+                    res += source.Take();
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
                 res += Environment.NewLine;
             }
 
@@ -103,10 +125,18 @@ namespace FolderComparer
         {
             for (int i = 0; i < 100; i++)
             {
-                Output.TryAdd(i);
+                Output.Add(i);
             }
 
             Output.CompleteAdding();
+            Thread.Sleep(2500);
+            Console.WriteLine("FINISH GENERATOR");
+        }
+
+        public void Dispose()
+        {
+            Output.Dispose();
+            Console.WriteLine("Generator disposed");
         }
     }
 
@@ -125,11 +155,27 @@ namespace FolderComparer
         {
             while (!Input.IsCompleted || Input.Count != 0)
             {
-                var item = Input.Take();
-                Output.Add(item * item);
+                try
+                {
+                    var item = Input.Take();
+                    Output.Add(item * item);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+        
             }
 
+            Console.WriteLine("FINISH SQUARER");
             Output.CompleteAdding();
+        }
+
+        public void Dispose()
+        {
+            Input.Dispose();
+            Output.Dispose();
+            Console.WriteLine("Squarer disposed");
         }
     }
 
@@ -151,12 +197,30 @@ namespace FolderComparer
 
             while (!Input.IsCompleted || Input.Count != 0)
             {
-                var strinItem = Input.Take().ToString();
-                var item = new string(strinItem.Reverse().ToArray());
-                Output.Add(item);
+                try
+                {
+                    var strinItem = Input.Take().ToString();
+                    var item = new string(strinItem.Reverse().ToArray());
+                    Output.Add(item);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+          
             }
 
             Output.CompleteAdding();
+
+            Thread.Sleep(1000);
+            Console.WriteLine("FINISH CONVERTER");
+        }
+
+        public void Dispose()
+        {
+            Input.Dispose();
+            Output.Dispose();
+            Console.WriteLine("Converter disposed");
         }
     }
 }

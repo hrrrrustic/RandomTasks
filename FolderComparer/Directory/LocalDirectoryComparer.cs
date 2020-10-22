@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace FolderComparer
 {
@@ -20,11 +21,20 @@ namespace FolderComparer
 
         public DirectoryCompareResult Compare(LocalDirectory x, LocalDirectory y)
         {
-            //var reader = new FileEnumator();
-            //PipeAction<ILocalFile> pipeAction = new PipeAction<ILocalFile>(reader);
-            //var pipeline = Pipeline
-            //    .Start<ILocalFile>(pipeAction);
+            var pipeline = Pipeline
+                    .Start<ILocalFile>(output => new FileEnumator(output, x, y))
+                    .WithCancellation(default)
+                    .ContinueWith<IFileBlock>((input, output) => new SingleThreadLocalFileBlocksReader(input, output))
+                    .ContinueWith<IHashedFileBlock>((input, output) => new FileBlockHandler(input, output))
+                    .ContinueWith<IHashedFlie>((input, output) => new HashedFileBlockHandler(input, output))
+                    .ContinueWith<IHashedDirectory>((input, output) => new HashedFileHandler(input, output))
+                    .FinishWith(CompareFolders);
 
+            return pipeline.GetResult();
+        }
+
+        private DirectoryCompareResult CompareFolders(BlockingCollection<IHashedDirectory> source)
+        {
             throw new Exception();
         }
     }

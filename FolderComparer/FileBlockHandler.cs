@@ -4,88 +4,75 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using Pipelines.Pipes;
 
 namespace FolderComparer
 {
-    public class FileBlockHandler
+    public class FileBlockHandler : IPipeMiddleItem<IFileBlock, IHashedFileBlock>
     {
-        private readonly IProducerConsumerCollection<IHashedFileBlock> _destination;
-        public FileBlockHandler(IProducerConsumerCollection<IHashedFileBlock> destination)
+        public BlockingCollection<IFileBlock> Input { get; }
+        public BlockingCollection<IHashedFileBlock> Output { get; }
+
+        public FileBlockHandler(BlockingCollection<IFileBlock> source, BlockingCollection<IHashedFileBlock> destination)
         {
-            _destination = destination;
+            Input = source;
+            Output = destination;
         }
-        public void CompletePushing()
+
+        public void Execute()
         {
             throw new NotImplementedException();
         }
 
-        public IFileBlock GetItem()
+        public void Dispose()
         {
-            throw new NotImplementedException();
+            Input.Dispose();
+            Output.Dispose();
+        }
+    }
+    public class HashedFileBlockHandler : IPipeMiddleItem<IHashedFileBlock, IHashedFlie>
+    {
+        public HashedFileBlockHandler(BlockingCollection<IHashedFileBlock> source, BlockingCollection<IHashedFlie> destination)
+        {
+            Input = source;
+            Output = destination;
         }
 
-        public void PushItem(IFileBlock item)
+        public BlockingCollection<IHashedFileBlock> Input { get; }
+
+        public BlockingCollection<IHashedFlie> Output { get; }
+
+        public void Dispose()
         {
-            throw new NotImplementedException();
+            Input.Dispose();
+            Output.Dispose();
         }
 
-        public void StartHandling()
+        public void Execute()
         {
             throw new NotImplementedException();
         }
     }
-    public class HashedFileBlockHandler
+    public class HashedFileHandler : IPipeMiddleItem<IHashedFlie, IHashedDirectory>
     {
-        private readonly IProducerConsumerCollection<IHashedFlie> _destination;
-        public HashedFileBlockHandler(IProducerConsumerCollection<IHashedFlie> destination)
+        public BlockingCollection<IHashedFlie> Input { get; }
+        public BlockingCollection<IHashedDirectory> Output { get; }
+
+        public HashedFileHandler(BlockingCollection<IHashedFlie> source, BlockingCollection<IHashedDirectory> destination)
         {
-            _destination = destination;
+            Input = source;
+            Output = destination;
         }
-        public void CompletePushing()
+
+        public void Execute()
         {
             throw new NotImplementedException();
         }
 
-        public IFileBlock GetItem()
+        public void Dispose()
         {
-            throw new NotImplementedException();
-        }
-
-        public void PushItem(IFileBlock item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void StartHandling()
-        {
-            throw new NotImplementedException();
-        }
-    }
-    public class HashedFileHandler
-    {
-        private readonly IProducerConsumerCollection<IHashedDirectory> _destination;
-        public HashedFileHandler(IProducerConsumerCollection<IHashedDirectory> destination)
-        {
-            _destination = destination;
-        }
-        public void CompletePushing()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFileBlock GetItem()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void PushItem(IFileBlock item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void StartHandling()
-        {
-            throw new NotImplementedException();
+            Input.Dispose();
+            Output.Dispose();
         }
     }
 }
