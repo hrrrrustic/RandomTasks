@@ -9,7 +9,7 @@ namespace FolderComparer.Old.Blocks
         public readonly Int32 BlockNumber;
         public readonly LocalFileInfo LocalFileInfo;
 
-        private HashedFileBlock(Byte[] hash, LocalFileInfo localFileInfo, Int32 blockNumber) 
+        private HashedFileBlock(Byte[] hash, LocalFileInfo localFileInfo, Int32 blockNumber)
             => (Hash, LocalFileInfo, BlockNumber) = (hash, localFileInfo, blockNumber);
         public static HashedFileBlock FromFileBlock(FileBlock block, Byte[] hash) 
             => new HashedFileBlock(hash, block.LocalFileInfo, block.BlockNumber);

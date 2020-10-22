@@ -25,35 +25,23 @@ namespace FolderComparer
         {
             var pipeline = Pipeline
                 .Start<ILocalFile>(output => new FileEnumerator(output, x, y))
-                .ContinueParallelWith<IFileBlock>((input, output) => new SingleThreadLocalFileBlocksReader(input, output))
+                .ContinueParallelWith<IHashableFileBlock>((input, output) => new SingleThreadLocalFileBlocksReader(input, output))
                 .ContinueParallelWith<IHashedFileBlock>((input, output) => new FileBlockHasher(SHA512.Create(), input, output))
+                .ContinueParallelWith<IHashedFlie>((input, output) => new HashedFileBlockMerger(input, output))
+                .ContinueParallelWith<IHashedDirectory>((input, output) => new HashedFileMerger(input, output))
                 .FinishParallelWith(Test);
 
             pipeline.GetResult();
             return null;
         }
-       
-        private int Test(BlockingCollection<IHashedFileBlock> input)
+        private int Test(BlockingCollection<IHashedDirectory> input)
         {
             foreach (var item in input.GetConsumingEnumerable())
             {
-                Console.WriteLine(item.FileId);
+                Console.WriteLine(item.Hash);
             }
 
             return 1;
-        }
-        private DirectoryCompareResult Ideal(LocalDirectory x, LocalDirectory y)
-        {
-            var pipeline = Pipeline
-                    .Start<ILocalFile>(output => new FileEnumerator(output, x, y))
-                    .WithCancellation(default)
-                    .ContinueWith<IFileBlock>((input, output) => new SingleThreadLocalFileBlocksReader(input, output))
-                    .ContinueWith<IHashedFileBlock>((input, output) => new FileBlockHasher(SHA512.Create(), input, output))
-                    .ContinueWith<IHashedFlie>((input, output) => new HashedFileBlockHandler(input, output))
-                    .ContinueWith<IHashedDirectory>((input, output) => new HashedFileHandler(input, output))
-                    .FinishWith(CompareFolders);
-
-            return pipeline.GetResult();
         }
         private DirectoryCompareResult CompareFolders(BlockingCollection<IHashedDirectory> source)
         {

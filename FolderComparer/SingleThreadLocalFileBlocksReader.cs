@@ -15,16 +15,16 @@ using System.Threading.Tasks;
 
 namespace FolderComparer
 {
-    public class SingleThreadLocalFileBlocksReader : IPipeMiddleItem<ILocalFile, IFileBlock>
+    public class SingleThreadLocalFileBlocksReader : IPipeMiddleItem<ILocalFile, IHashableFileBlock>
     {
         private const int BlockSize = 4096;
         private static readonly AutoResetEvent _resetEvent = new(true);
 
-        public BlockingCollection<IFileBlock> Output { get; }
+        public BlockingCollection<IHashableFileBlock> Output { get; }
 
         public BlockingCollection<ILocalFile> Input { get; }
 
-        public SingleThreadLocalFileBlocksReader(BlockingCollection<ILocalFile> source, BlockingCollection<IFileBlock> destination)
+        public SingleThreadLocalFileBlocksReader(BlockingCollection<ILocalFile> source, BlockingCollection<IHashableFileBlock> destination)
         {
             Input = source;
             Output = destination;

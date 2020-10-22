@@ -7,15 +7,18 @@ using System.Threading.Tasks;
 
 namespace FolderComparer
 {
-    public interface IHashedFileBlock
+    public interface IFileBlock
     {
         int BlockNumber { get; }
         Guid FileId { get; }
         bool IsLastBlock { get; }
     }
-
-    public interface IFileBlock : IHashedFileBlock
+    public interface IHashableFileBlock : IFileBlock
     {
         IHashedFileBlock HashBlock(HashAlgorithm algorithm);
+    }
+    public interface IHashedFileBlock : IFileBlock
+    {
+        IHashedFileBlock MergeHash(IHashedFileBlock anotherBlock);
     }
 }

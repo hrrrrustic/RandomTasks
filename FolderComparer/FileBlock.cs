@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FolderComparer
 {
-    public class FileBlock : IFileBlock, IDisposable
+    public class FileBlock : IHashableFileBlock, IDisposable
     {
         private readonly Buffer _block;
         public readonly LocalFileInfo LocalFileInfo;

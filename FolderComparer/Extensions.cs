@@ -8,7 +8,7 @@ namespace FolderComparer
 {
     public static class Extensions
     {
-        public static void AddOrUpdate<TKey, TValue>(this Dictionary<TKey, ICollection<TValue>> dict, 
+        public static void AddOrUpdate<TKey, TValue>(this Dictionary<TKey, ICollection<TValue>> dict,
             TKey key, Func<ICollection<TValue>> creator, TValue value)
             where TKey : notnull
         {

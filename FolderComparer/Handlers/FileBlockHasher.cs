@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace FolderComparer.Handlers
 {
-    public class FileBlockHasher : IPipeMiddleItem<IFileBlock, IHashedFileBlock>
+    public class FileBlockHasher : IPipeMiddleItem<IHashableFileBlock, IHashedFileBlock>
     {
-        public BlockingCollection<IFileBlock> Input { get; }
+        public BlockingCollection<IHashableFileBlock> Input { get; }
         public BlockingCollection<IHashedFileBlock> Output { get; }
         private readonly HashAlgorithm _algorithm;
 
-        public FileBlockHasher(HashAlgorithm algorithm, BlockingCollection<IFileBlock> source, BlockingCollection<IHashedFileBlock> destination)
+        public FileBlockHasher(HashAlgorithm algorithm, BlockingCollection<IHashableFileBlock> source, BlockingCollection<IHashedFileBlock> destination)
         {
             Input = source;
             Output = destination;

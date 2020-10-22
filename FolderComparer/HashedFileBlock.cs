@@ -20,5 +20,10 @@ namespace FolderComparer
             FileId = fileId;
             IsLastBlock = isLastBlock;
         }
+
+        public IHashedFileBlock MergeHash(IHashedFileBlock anotherBlock)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -9,5 +9,6 @@ namespace FolderComparer
     public interface IHashedFlie
     {
         byte[] Hash { get; }
+        Guid FolderId { get; }
     }
 }

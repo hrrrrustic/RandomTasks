@@ -10,7 +10,7 @@ namespace FolderComparer
     {
     }
 
-    public interface ILocalFile : IFile 
+    public interface ILocalFile : IFile
     { 
         String Path { get; }
     }
