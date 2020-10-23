@@ -2,11 +2,9 @@
 
 namespace FolderComparer
 {
-    public interface IDirectoryComparer<TFirstDirectory, TFirstFile, TSecondDirectory, TSecondFile>
-        where TFirstDirectory : IDirectory<TFirstFile>
-        where TFirstFile : IFile
-        where TSecondDirectory : IDirectory<TSecondFile>
-        where TSecondFile : IFile
+    public interface IDirectoryComparer<TFirstDirectory, TSecondDirectory>
+        where TFirstDirectory : IDirectory
+        where TSecondDirectory : IDirectory
     {
         DirectoryCompareResult Compare(TFirstDirectory x, TSecondDirectory y);
     }

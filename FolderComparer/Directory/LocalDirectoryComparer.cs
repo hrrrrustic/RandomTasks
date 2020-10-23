@@ -8,7 +8,7 @@ using FolderComparer.Handlers;
 
 namespace FolderComparer
 {
-    public class LocalDirectoryComparer : IDirectoryComparer<LocalDirectory, ILocalFile, LocalDirectory, ILocalFile>
+    public class LocalDirectoryComparer : IDirectoryComparer<LocalDirectory, LocalDirectory>
     {
         public DirectoryCompareResult Compare(DirectoryInfo x, DirectoryInfo y)
         {
