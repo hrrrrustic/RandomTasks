@@ -14,14 +14,22 @@ namespace FolderComparer
 
         public Guid FileId { get; }
 
-        public HashedFileBlock(int blockNumber, Guid fileId, bool isLastBlock)
+        public byte[] Hash { get; }
+
+        public HashedFileBlock(byte[] hash, int blockNumber, Guid fileId, bool isLastBlock)
         {
+            Hash = hash;
             BlockNumber = blockNumber;
             FileId = fileId;
             IsLastBlock = isLastBlock;
         }
 
         public IHashedFileBlock MergeHash(IHashedFileBlock anotherBlock)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] MergeHash(byte[] anotherBlock)
         {
             throw new NotImplementedException();
         }

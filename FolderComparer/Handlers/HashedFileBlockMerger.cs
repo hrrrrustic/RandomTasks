@@ -1,29 +1,35 @@
-﻿using Pipelines.Pipes;
+﻿using FolderComparer.Files;
+using Pipelines.Pipes;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace FolderComparer.Handlers
 {
-    public class HashedFileBlockMerger : IPipeMiddleItem<IHashedFileBlock, IHashedFlie>
+    public class HashedFileBlockMerger : IPipeMiddleItem<IHashedFileBlock, IHashedFile>
     {
         public BlockingCollection<IHashedFileBlock> Input { get; }
-        public BlockingCollection<IHashedFlie> Output { get; }
+        public BlockingCollection<IHashedFile> Output { get; }
         private readonly Dictionary<Guid, List<IHashedFileBlock>> _fileBlocks = new();
+        private readonly HashAlgorithm _hashAlgorithm;
 
-        public HashedFileBlockMerger(BlockingCollection<IHashedFileBlock> source, BlockingCollection<IHashedFlie> destination)
+        public HashedFileBlockMerger(HashAlgorithm hashAlgorithm, 
+            BlockingCollection<IHashedFileBlock> source, BlockingCollection<IHashedFile> destination)
         {
             Input = source;
             Output = destination;
+            _hashAlgorithm = hashAlgorithm;
         }
 
         public void Dispose()
         {
             Input.Dispose();
             Output.Dispose();
+            _hashAlgorithm.Dispose();
         }
 
         public void StartHandling()
@@ -47,15 +53,15 @@ namespace FolderComparer.Handlers
             Output.CompleteAdding();
         }
 
-        private IHashedFlie MergeBlocks(Guid key)
+        private IHashedFile MergeBlocks(Guid key)
         {
             var orderedBlocks = _fileBlocks[key].OrderBy(k => k.BlockNumber).ToList();
-            IHashedFileBlock resultHashedBlock = orderedBlocks[0];
+            byte[] resultHash = new byte[_hashAlgorithm.HashSize / 8];
 
-            for (int i = 1; i < orderedBlocks.Count; i++)
-                resultHashedBlock = resultHashedBlock.MergeHash(orderedBlocks[i]);
+            for (int i = 0; i < orderedBlocks.Count; i++)
+                resultHash = orderedBlocks[i].MergeHash(resultHash);
 
-            throw new Exception();
+            return new HashedLocalFile(resultHash, Guid.Empty);
         }
     }
 }

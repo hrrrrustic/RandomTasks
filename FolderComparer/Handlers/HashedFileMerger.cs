@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace FolderComparer.Handlers
 {
-    public class HashedFileMerger : IPipeMiddleItem<IHashedFlie, IHashedDirectory>
+    public class HashedFileMerger : IPipeMiddleItem<IHashedFile, IHashedDirectory>
     {
-        public BlockingCollection<IHashedFlie> Input { get; }
+        public BlockingCollection<IHashedFile> Input { get; }
         public BlockingCollection<IHashedDirectory> Output { get; }
-        private readonly Dictionary<Guid, List<IHashedFlie>> _files = new();
+        private readonly Dictionary<Guid, List<IHashedFile>> _files = new();
 
-        public HashedFileMerger(BlockingCollection<IHashedFlie> source, BlockingCollection<IHashedDirectory> destination)
+        public HashedFileMerger(BlockingCollection<IHashedFile> source, BlockingCollection<IHashedDirectory> destination)
         {
             Input = source;
             Output = destination;
@@ -25,7 +25,7 @@ namespace FolderComparer.Handlers
             foreach (var hashedFile in Input.GetConsumingEnumerable())
             {
                 if (!_files.ContainsKey(hashedFile.FolderId))
-                    _files.Add(hashedFile.FolderId, new List<IHashedFlie>());
+                    _files.Add(hashedFile.FolderId, new List<IHashedFile>());
 
                 _files[hashedFile.FolderId].Add(hashedFile);
             }

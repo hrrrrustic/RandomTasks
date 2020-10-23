@@ -1,4 +1,5 @@
-﻿using Pipelines.Pipes;
+﻿using FolderComparer.Files;
+using Pipelines.Pipes;
 using System;
 using System.Buffers;
 using System.Collections.Concurrent;
@@ -56,9 +57,13 @@ namespace FolderComparer
             Int32 blockCount = 1;
             while (ReadBlock(fileStream, bufferSize, out Buffer? readedBlock))
             {
-                FileBlock block = new FileBlock(readedBlock, blockCount, fileId, false);
-                blockCount++;
+                FileBlock block;
+                if (fileStream.Position == length)
+                    block = new FileBlock(readedBlock, blockCount, fileId, false);
+                else
+                    block = new FileBlock(readedBlock, blockCount, fileId, true);
 
+                blockCount++;
                 Output.Add(block);
             }
         }

@@ -19,6 +19,7 @@ namespace FolderComparer
     }
     public interface IHashedFileBlock : IFileBlock
     {
-        IHashedFileBlock MergeHash(IHashedFileBlock anotherBlock);
+        byte[] Hash { get; }
+        byte[] MergeHash(byte[] anotherBlock);
     }
 }

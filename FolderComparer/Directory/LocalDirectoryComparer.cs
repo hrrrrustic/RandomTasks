@@ -25,26 +25,22 @@ namespace FolderComparer
         {
             var pipeline = Pipeline
                 .Start<ILocalFile>(output => new FileEnumerator(output, x, y))
-                .ContinueParallelWith<IHashableFileBlock>((input, output) => new SingleThreadLocalFileBlocksReader(input, output))
-                .ContinueParallelWith<IHashedFileBlock>((input, output) => new FileBlockHasher(SHA512.Create(), input, output))
-                .ContinueParallelWith<IHashedFlie>((input, output) => new HashedFileBlockMerger(input, output))
-                .ContinueParallelWith<IHashedDirectory>((input, output) => new HashedFileMerger(input, output))
-                .FinishParallelWith(Test);
+                .ContinueWith<IHashableFileBlock>((input, output) => new SingleThreadLocalFileBlocksReader(input, output))
+                .ContinueWith<IHashedFileBlock>((input, output) => new FileBlockHasher(SHA512.Create(), input, output))
+                .ContinueWith<IHashedFile>((input, output) => new HashedFileBlockMerger(SHA512.Create(), input, output))
+                .ContinueWith<IHashedDirectory>((input, output) => new HashedFileMerger(input, output))
+                .FinishWith(CompareFolders);
 
-            pipeline.GetResult();
-            return null;
+            return pipeline.GetResult();
         }
-        private int Test(BlockingCollection<IHashedDirectory> input)
+
+        private DirectoryCompareResult CompareFolders(BlockingCollection<IHashedDirectory> source)
         {
-            foreach (var item in input.GetConsumingEnumerable())
+            foreach (var item in source.GetConsumingEnumerable())
             {
                 Console.WriteLine(item.Hash);
             }
 
-            return 1;
-        }
-        private DirectoryCompareResult CompareFolders(BlockingCollection<IHashedDirectory> source)
-        {
             throw new Exception();
         }
     }

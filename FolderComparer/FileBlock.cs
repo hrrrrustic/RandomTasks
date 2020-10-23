@@ -28,7 +28,7 @@ namespace FolderComparer
         public IHashedFileBlock HashBlock(HashAlgorithm algorithm)
         {
             var hash = algorithm.ComputeHash(_block.ByteBuffer);
-            var hashedBLock = new HashedFileBlock(BlockNumber, FileId, IsLastBlock);
+            var hashedBLock = new HashedFileBlock(hash, BlockNumber, FileId, IsLastBlock);
             Dispose();
             return hashedBLock;
         }
