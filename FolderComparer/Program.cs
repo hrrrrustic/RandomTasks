@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
-using FolderComparer.Folders;
 using Pipelines.Pipes;
 using FolderComparer.Tools;
 using System.Threading;
