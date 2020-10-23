@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using Pipelines.Pipes;
-using FolderComparer.Tools;
 using System.Threading;
 
 namespace FolderComparer

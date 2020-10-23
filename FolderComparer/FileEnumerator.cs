@@ -1,12 +1,5 @@
-﻿using FolderComparer.Tools;
-using Pipelines.Pipes;
-using System;
+﻿using Pipelines.Pipes;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FolderComparer
 {

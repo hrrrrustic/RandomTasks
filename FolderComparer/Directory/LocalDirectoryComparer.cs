@@ -1,13 +1,7 @@
-﻿using FolderComparer.Files;
-using Pipelines.Pipes;
+﻿using Pipelines.Pipes;
 using FolderComparer.Tools;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using FolderComparer.Handlers;

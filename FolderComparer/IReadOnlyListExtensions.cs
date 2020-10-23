@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace FolderComparer.Tools
+namespace FolderComparer
 {
     public static class IReadOnlyListExtensions
     {
