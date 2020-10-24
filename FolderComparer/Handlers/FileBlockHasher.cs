@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 
 namespace FolderComparer.Handlers
 {
-    public class FileBlockHasher : IPipeMiddleItem<IHashableFileBlock, IHashedFileBlock>
+    public sealed class FileBlockHasher : IPipeMiddleItem<IHashableFileBlock, IHashedFileBlock>
     {
         public BlockingCollection<IHashableFileBlock> Input { get; }
         public BlockingCollection<IHashedFileBlock> Output { get; }

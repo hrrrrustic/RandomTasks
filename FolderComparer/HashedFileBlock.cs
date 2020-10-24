@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace FolderComparer
 {
@@ -6,25 +7,23 @@ namespace FolderComparer
     {
         public int BlockNumber { get; }
         public bool IsLastBlock { get; }
-        public Guid FileId { get; }
+        public FileInfo FileInfo { get; }
         public byte[] Hash { get; }
 
-        public HashedFileBlock(byte[] hash, int blockNumber, Guid fileId, bool isLastBlock)
+        public HashedFileBlock(byte[] hash, int blockNumber, FileInfo fileInfo, bool isLastBlock)
         {
             Hash = hash;
             BlockNumber = blockNumber;
-            FileId = fileId;
+            FileInfo = fileInfo;
             IsLastBlock = isLastBlock;
-        }
-
-        public IHashedFileBlock MergeHash(IHashedFileBlock anotherBlock)
-        {
-            throw new NotImplementedException();
         }
 
         public byte[] MergeHash(byte[] anotherBlock)
         {
-            throw new NotImplementedException();
+            if (Hash.Length != anotherBlock.Length)
+                throw new Exception();
+
+            return Hash.Select((k, i) => (Byte)(k ^ anotherBlock[i])).ToArray();
         }
     }
 }

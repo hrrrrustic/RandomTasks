@@ -18,7 +18,7 @@ namespace FolderComparer
         public DirectoryCompareResult Compare(LocalDirectory x, LocalDirectory y)
         {
             var pipeline = Pipeline
-                .Start<ILocalFile>(output => new FileEnumerator(output, x, y))
+                .Start<IFile>(output => new FileEnumerator(output, x, y))
                 .ContinueWith<IHashableFileBlock>((input, output) => new SingleThreadLocalFileBlocksReader(input, output))
                 .ContinueWith<IHashedFileBlock>((input, output) => new FileBlockHasher(SHA512.Create(), input, output))
                 .ContinueWith<IHashedFile>((input, output) => new HashedFileBlockMerger(SHA512.Create(), input, output))
@@ -30,12 +30,15 @@ namespace FolderComparer
 
         private DirectoryCompareResult CompareFolders(BlockingCollection<IHashedDirectory> source)
         {
-            foreach (var item in source.GetConsumingEnumerable())
-            {
-                Console.WriteLine(item.Hash);
-            }
+            var folders = source.ToArray();
 
-            throw new Exception();
+            if (folders.Length != 2)
+                throw new NotSupportedException("Comparing more than 2 folders not supported");
+
+            var firstFolder = folders[0];
+            var secondFolder = folders[1];
+
+            return firstFolder.Compare(secondFolder);
         }
     }
 }

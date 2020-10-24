@@ -10,7 +10,7 @@ namespace FolderComparer.Tools
         public readonly IReadOnlyList<String> Differences;
         public readonly Boolean IsIdentical;
 
-        public DirectoryCompareResult(IReadOnlyList<(String, String)> matches, IReadOnlyList<String> differences) 
+        public DirectoryCompareResult(IReadOnlyList<(String, String)> matches, IReadOnlyList<String> differences)
             => (Matches, Differences, IsIdentical) = (matches, differences, differences.Count == 0);
 
         private DirectoryCompareResult() => (Matches, Differences, IsIdentical) = (new List<(String, String)>(0), new List<String>(0), true);
@@ -24,20 +24,18 @@ namespace FolderComparer.Tools
 
             StringBuilder builder = new();
             builder
-                .Append("Same files : ")
-                .AppendLine();
+                .AppendLine("Same files : ");
 
             Matches.ForEach(k => builder
-                .Append($"{k.Item1} ====== {k.Item2}")
-                .AppendLine());
+                .Append(k.Item1)
+                .Append(" ====== ")
+                .AppendLine(k.Item2));
 
             builder
-                .Append("Difference :")
-                .AppendLine();
+                .AppendLine("Difference :");
 
             Differences.ForEach(k => builder
-                .Append($"{k}")
-                .AppendLine());
+                .AppendLine(k));
 
             return builder.ToString();
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FolderComparer.Old
+namespace FolderComparer
 {
-    public record LocalFileInfo(String FilePath, Guid FolderId, Guid FileId);
+    public record FileInfo(String FilePath, Guid FolderId, Guid FileId);
 }

@@ -2,9 +2,9 @@
 
 namespace FolderComparer
 {
-    public interface IHashedFile
+    public interface IHashedFile : IFile, IEquatable<IHashedFile>
     {
         byte[] Hash { get; }
-        Guid FolderId { get; }
+        byte[] MergeHash(byte[] anotherFile);
     }
 }

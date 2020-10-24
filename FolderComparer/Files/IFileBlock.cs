@@ -1,12 +1,11 @@
-﻿using System;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 namespace FolderComparer
 {
     public interface IFileBlock
     {
         int BlockNumber { get; }
-        Guid FileId { get; }
+        FileInfo FileInfo { get; }
         bool IsLastBlock { get; }
     }
     public interface IHashableFileBlock : IFileBlock

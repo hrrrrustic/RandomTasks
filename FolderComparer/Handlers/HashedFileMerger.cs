@@ -1,16 +1,16 @@
-﻿using Pipelines.Pipes;
+﻿using FolderComparer.Directory;
+using Pipelines.Pipes;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace FolderComparer.Handlers
 {
-    public class HashedFileMerger : IPipeMiddleItem<IHashedFile, IHashedDirectory>
+    public sealed class HashedFileMerger : IPipeMiddleItem<IHashedFile, IHashedDirectory>
     {
         public BlockingCollection<IHashedFile> Input { get; }
         public BlockingCollection<IHashedDirectory> Output { get; }
         private readonly Dictionary<Guid, List<IHashedFile>> _files = new();
-
         public HashedFileMerger(BlockingCollection<IHashedFile> source, BlockingCollection<IHashedDirectory> destination)
         {
             Input = source;
@@ -21,12 +21,11 @@ namespace FolderComparer.Handlers
         {
             foreach (var hashedFile in Input.GetConsumingEnumerable())
             {
-                if (!_files.ContainsKey(hashedFile.FolderId))
-                    _files.Add(hashedFile.FolderId, new List<IHashedFile>());
+                if (!_files.ContainsKey(hashedFile.DirectoryId))
+                    _files.Add(hashedFile.DirectoryId, new List<IHashedFile>());
 
-                _files[hashedFile.FolderId].Add(hashedFile);
+                _files[hashedFile.DirectoryId].Add(hashedFile);
             }
-
 
             foreach (var folder in _files.Keys)
             {
@@ -36,7 +35,13 @@ namespace FolderComparer.Handlers
 
         private IHashedDirectory MergeHashedFiles(Guid key)
         {
-            throw new Exception();
+            var files = _files[key];
+            byte[] resultHash = new byte[files[0].Hash.Length];
+
+            for (int i = 0; i < files.Count; i++)
+                resultHash = files[i].MergeHash(resultHash);
+
+            return new HashedLocalDirectory(resultHash, _files[key]);
         }
         public void Execute()
         {

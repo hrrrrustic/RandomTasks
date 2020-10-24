@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 
 namespace FolderComparer
 {
     public class DirectoryPathValidator : IValidator<String>
     {
-        public IEnumerator<IFile> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
         public IValidationResult Validate(params string?[] items)
         {
             foreach (var item in items)
@@ -28,8 +22,11 @@ namespace FolderComparer
             if (item is null)
                 return ValidationResult.ValidationFailed("Directori is null");
 
-            if (!Directory.Exists(item))
+            if (!System.IO.Directory.Exists(item))
                 return ValidationResult.ValidationFailed($"Directory {item} doesn't exist");
+
+            if (System.IO.Directory.EnumerateDirectories(item).Any())
+                return ValidationResult.ValidationFailed("Subdirectory feature not supported");
 
             return ValidationResult.SuccessValidation();
         }

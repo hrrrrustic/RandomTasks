@@ -1,26 +1,21 @@
-﻿using FolderComparer.Files;
-using Pipelines.Pipes;
+﻿using Pipelines.Pipes;
 using System;
 using System.Buffers;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Threading;
 
 namespace FolderComparer
 {
-    public class SingleThreadLocalFileBlocksReader : IPipeMiddleItem<ILocalFile, IHashableFileBlock>
+    public sealed class SingleThreadLocalFileBlocksReader : IPipeMiddleItem<IFile, IHashableFileBlock>
     {
         private const int BlockSize = 4096;
         private static readonly AutoResetEvent _resetEvent = new(true);
-
         public BlockingCollection<IHashableFileBlock> Output { get; }
+        public BlockingCollection<IFile> Input { get; }
 
-        public BlockingCollection<ILocalFile> Input { get; }
-
-        public SingleThreadLocalFileBlocksReader(BlockingCollection<ILocalFile> source, BlockingCollection<IHashableFileBlock> destination)
+        public SingleThreadLocalFileBlocksReader(BlockingCollection<IFile> source, BlockingCollection<IHashableFileBlock> destination)
         {
             Input = source;
             Output = destination;
@@ -41,9 +36,9 @@ namespace FolderComparer
             }
         }
 
-        private void ReadBlocks(ILocalFile file)
+        private void ReadBlocks(IFile file)
         {
-            Guid fileId = Guid.NewGuid();
+            FileInfo info = new FileInfo(file.Path, file.FileId, file.DirectoryId);
             using FileStream fileStream = File.OpenRead(file.Path);
 
             Int64 length = fileStream.Length;
@@ -53,17 +48,17 @@ namespace FolderComparer
             while (ReadBlock(fileStream, bufferSize, out Buffer? readedBlock))
             {
                 FileBlock block;
-                if (fileStream.Position == length)
-                    block = new FileBlock(readedBlock, blockCount, fileId, false);
+                    if (fileStream.Position == length)
+                    block = new FileBlock(readedBlock, blockCount, info, true);
                 else
-                    block = new FileBlock(readedBlock, blockCount, fileId, true);
+                    block = new FileBlock(readedBlock, blockCount, info, false);
 
                 blockCount++;
                 Output.Add(block);
             }
         }
 
-        private bool ReadBlock(Stream stream, Int32 bufferSize, [NotNullWhen(true)] out Buffer? buffer)
+        private static bool ReadBlock(Stream stream, Int32 bufferSize, [NotNullWhen(true)] out Buffer? buffer)
         {
             buffer = GetBuffer(bufferSize);
             Int32 readedCount = stream.Read(buffer.ByteBuffer, 0, bufferSize);
@@ -81,7 +76,7 @@ namespace FolderComparer
             return true;
         }
 
-        private Buffer GetBuffer(Int32 size) => new Buffer(ArrayPool<Byte>.Shared.Rent(size), size, true);
+        private static Buffer GetBuffer(Int32 size) => new Buffer(ArrayPool<Byte>.Shared.Rent(size), size, true);
 
         public void Execute()
         {

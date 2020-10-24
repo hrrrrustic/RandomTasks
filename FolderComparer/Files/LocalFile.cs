@@ -1,14 +1,18 @@
-﻿using System.IO;
+﻿using System;
 
 namespace FolderComparer.Files
 {
-    public class LocalFile : ILocalFile
+    public class LocalFile : IFile
     {
-        private readonly FileInfo _fileInfo;
-        public string Path => _fileInfo.FullName;
-        public LocalFile(FileInfo fileInfo)
+        public string Path { get; }
+        public Guid FileId { get; }
+        public Guid DirectoryId { get; }
+
+        public LocalFile(string path, Guid folderId)
         {
-            _fileInfo = fileInfo;
+            DirectoryId = folderId;
+            FileId = Guid.NewGuid();
+            Path = path;
         }
     }
 }

@@ -4,10 +4,8 @@ namespace FolderComparer
 {
     public interface IFile
     {
-    }
-
-    public interface ILocalFile : IFile
-    { 
+        Guid DirectoryId { get; }
+        Guid FileId { get; }
         String Path { get; }
     }
 }
